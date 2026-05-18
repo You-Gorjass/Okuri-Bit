@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アバター作成 - Okuri-Bit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #FFF0F8 0%, #F3E8FF 100%); min-height: 100vh; }
+
+    .page-wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 20px 100px;
+    }
+
+    /* Steps */
+    .steps-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+    .s-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .s-num {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      color: #aaa;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
+    }
+    .s-item.active .s-num { background: var(--gradient); color: white; box-shadow: 0 4px 12px rgba(255,107,157,0.4); }
+    .s-item.done .s-num { background: #4CAF50; color: white; }
+    .s-label { font-size: 0.7rem; color: #aaa; font-weight: 700; white-space: nowrap; }
+    .s-item.active .s-label { color: var(--primary); }
+    .s-line { width: 40px; height: 2px; background: #e0e0e0; margin-bottom: 20px; flex-shrink: 0; }
+
+    /* Layout */
+    .avatar-layout {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 680px) {
+      .avatar-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Preview Card */
+    .preview-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      text-align: center;
+      position: sticky;
+      top: 80px;
+    }
+    .preview-title {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .avatar-stage {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+    #avatarCanvas {
+      width: 180px;
+      height: 180px;
+    }
+    .motion-label {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin-top: 8px;
+    }
+    .expr-display {
+      font-size: 1.5rem;
+      margin-top: 4px;
+    }
+
+    /* Past Avatars */
+    .past-section {
+      margin-bottom: 20px;
+    }
+    .past-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .past-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .past-avatar-item {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      transition: all 0.2s;
+      background: white;
+    }
+    .past-avatar-item:hover, .past-avatar-item.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255,107,157,0.18);
+    }
+    .past-avatar-item.new-btn {
+      background: var(--bg);
+      font-size: 1.2rem;
+      color: var(--primary);
+      border-style: dashed;
+      border-color: var(--primary);
+    }
+
+    /* Customization Panels */
+    .custom-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+    .custom-section {
+      margin-bottom: 28px;
+    }
+    .custom-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .option-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .opt-btn {
+      padding: 7px 14px;
+      border-radius: 50px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .opt-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .opt-btn.active { border-color: var(--primary); color: var(--primary); background: #fff0f7; }
+
+    /* Color swatches */
+    .color-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .color-swatch {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: var(--primary); transform: scale(1.15); }
+
+    /* Expression grid */
+    .expr-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .expr-btn {
+      padding: 10px 6px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 1.4rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .expr-btn span { display: block; font-size: 0.65rem; color: var(--text-light); font-weight: 700; margin-top: 3px; font-family: inherit; }
+    .expr-btn:hover { transform: scale(1.05); border-color: var(--primary); }
+    .expr-btn.active { border-color: var(--primary); background: #fff0f7; box-shadow: 0 4px 12px rgba(255,107,157,0.2); }
+
+    /* Motion grid */
+    .motion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .motion-btn {
+      padding: 12px 8px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: inherit;
+    }
+    .motion-btn span { display: block; font-size: 0.65rem; color: var(--text-light); font-weight: 700; margin-top: 3px; }
+    .motion-btn:hover { border-color: var(--secondary); }
+    .motion-btn.active { border-color: var(--secondary); background: #f5ecff; box-shadow: 0 4px 12px rgba(168,85,247,0.2); }
+
+    /* Name input */
+    .name-input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 2px solid #eee;
+      border-radius: 50px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .name-input:focus { border-color: var(--primary); }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.09);
+      padding: 14px 24px;
+      z-index: 200;
+    }
+    .bottom-bar-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎁</div>
+      <span class="logo-text">Okuri-Bit</span>
+    </a>
+    <nav class="header-nav">
+      <a href="community.html" class="btn btn-outline"><i class="fas fa-users"></i> みんなの投稿</a>
+      <a href="giftalk.html" class="btn btn-outline" style="border-color:var(--secondary);color:var(--secondary);"><i class="fas fa-robot"></i> Giftalk</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Steps -->
+  <div class="steps-bar">
+    <div class="s-item done">
+      <div class="s-num"><i class="fas fa-check" style="font-size:0.8rem;"></i></div>
+      <div class="s-label">ギフト選択</div>
+    </div>
+    <div class="s-line"></div>
+    <div class="s-item active">
+      <div class="s-num">2</div>
+      <div class="s-label">アバター作成</div>
+    </div>
+    <div class="s-line"></div>
+    <div class="s-item">
+      <div class="s-num">3</div>
+      <div class="s-label">メッセージ</div>
+    </div>
+    <div class="s-line"></div>
+    <div class="s-item">
+      <div class="s-num">4</div>
+      <div class="s-label">確認・送信</div>
+    </div>
+  </div>
+
+  <!-- Selected Gift Info -->
+  <div id="selectedGiftInfo" style="background:white; border-radius:16px; padding:14px 20px; margin-bottom:24px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-card);">
+    <span id="giftEmojiDisplay" style="font-size:2rem;">🎁</span>
+    <div>
+      <div style="font-size:0.75rem; color:var(--text-light); font-weight:700;">選択中のギフト</div>
+      <div id="giftNameDisplay" style="font-weight:800; font-size:1rem;">読み込み中...</div>
+      <div id="giftPriceDisplay" style="color:var(--primary); font-weight:700; font-size:0.88rem;"></div>
+    </div>
+    <a href="index.html" style="margin-left:auto; font-size:0.8rem; color:var(--text-light); text-decoration:none;">変更</a>
+  </div>
+
+  <div class="avatar-layout">
+
+    <!-- Customization -->
+    <div>
+
+      <!-- Past Avatars -->
+      <div class="custom-card" style="margin-bottom:20px;">
+        <div class="past-section" style="margin-bottom:0;">
+          <div class="past-title">💾 過去のアバター</div>
+          <div class="past-grid" id="pastAvatarGrid">
+            <div class="past-avatar-item new-btn" onclick="resetAvatar()" title="新しく作る">＋</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customization -->
+      <div class="custom-card">
+
+        <!-- Avatar Name -->
+        <div class="custom-section">
+          <div class="custom-label">🏷️ アバター名</div>
+          <input type="text" class="name-input" id="avatarName" placeholder="例：さくらちゃん" maxlength="12" oninput="updatePreview()">
+        </div>
+
+        <!-- Sender Name -->
+        <div class="custom-section">
+          <div class="custom-label">👤 あなたの名前</div>
+          <input type="text" class="name-input" id="senderName" placeholder="例：田中たろう" maxlength="20">
+        </div>
+
+        <!-- Recipient Name -->
+        <div class="custom-section">
+          <div class="custom-label">🎯 受け取り手の名前</div>
+          <input type="text" class="name-input" id="recipientName" placeholder="例：山田はなこ" maxlength="20">
+        </div>
+
+        <!-- Face Color -->
+        <div class="custom-section">
+          <div class="custom-label">🎨 肌の色</div>
+          <div class="color-row" id="faceColorRow">
+            <div class="color-swatch active" style="background:#FFDABB;" data-val="#FFDABB" onclick="setOption('faceColor','#FFDABB',this)"></div>
+            <div class="color-swatch" style="background:#F5C5A3;" data-val="#F5C5A3" onclick="setOption('faceColor','#F5C5A3',this)"></div>
+            <div class="color-swatch" style="background:#E8A87C;" data-val="#E8A87C" onclick="setOption('faceColor','#E8A87C',this)"></div>
+            <div class="color-swatch" style="background:#C68642;" data-val="#C68642" onclick="setOption('faceColor','#C68642',this)"></div>
+            <div class="color-swatch" style="background:#8D5524;" data-val="#8D5524" onclick="setOption('faceColor','#8D5524',this)"></div>
+          </div>
+        </div>
+
+        <!-- Hair Style -->
+        <div class="custom-section">
+          <div class="custom-label">💇 髪型</div>
+          <div class="option-row" id="hairStyleRow">
+            <button class="opt-btn active" data-val="short" onclick="setOption('hairStyle','short',this)">ショート</button>
+            <button class="opt-btn" data-val="long" onclick="setOption('hairStyle','long',this)">ロング</button>
+            <button class="opt-btn" data-val="wavy" onclick="setOption('hairStyle','wavy',this)">ウェーブ</button>
+            <button class="opt-btn" data-val="bun" onclick="setOption('hairStyle','bun',this)">お団子</button>
+            <button class="opt-btn" data-val="hat" onclick="setOption('hairStyle','hat',this)">帽子</button>
+          </div>
+        </div>
+
+        <!-- Hair Color -->
+        <div class="custom-section">
+          <div class="custom-label">🎨 髪の色</div>
+          <div class="color-row" id="hairColorRow">
+            <div class="color-swatch active" style="background:#3D2B1F;" data-val="#3D2B1F" onclick="setOption('hairColor','#3D2B1F',this)"></div>
+            <div class="color-swatch" style="background:#6B4226;" data-val="#6B4226" onclick="setOption('hairColor','#6B4226',this)"></div>
+            <div class="color-swatch" style="background:#D4A056;" data-val="#D4A056" onclick="setOption('hairColor','#D4A056',this)"></div>
+            <div class="color-swatch" style="background:#F4D1D1;" data-val="#F4D1D1" onclick="setOption('hairColor','#F4D1D1',this)"></div>
+            <div class="color-swatch" style="background:#7B7FCD;" data-val="#7B7FCD" onclick="setOption('hairColor','#7B7FCD',this)"></div>
+            <div class="color-swatch" style="background:#E0E0E0;" data-val="#E0E0E0" onclick="setOption('hairColor','#E0E0E0',this)"></div>
+          </div>
+        </div>
+
+        <!-- Eye Style -->
+        <div class="custom-section">
+          <div class="custom-label">👁️ 目の形</div>
+          <div class="option-row" id="eyeStyleRow">
+            <button class="opt-btn active" data-val="normal" onclick="setOption('eyeStyle','normal',this)">🔵 ふつう</button>
+            <button class="opt-btn" data-val="sparkle" onclick="setOption('eyeStyle','sparkle',this)">✨ キラキラ</button>
+            <button class="opt-btn" data-val="happy" onclick="setOption('eyeStyle','happy',this)">😊 にっこり</button>
+            <button class="opt-btn" data-val="sleepy" onclick="setOption('eyeStyle','sleepy',this)">😴 たれ目</button>
+          </div>
+        </div>
+
+        <!-- Accessory -->
+        <div class="custom-section">
+          <div class="custom-label">💎 アクセサリー</div>
+          <div class="option-row" id="accessoryRow">
+            <button class="opt-btn active" data-val="none" onclick="setOption('accessory','none',this)">なし</button>
+            <button class="opt-btn" data-val="glasses" onclick="setOption('accessory','glasses',this)">👓 メガネ</button>
+            <button class="opt-btn" data-val="ribbon" onclick="setOption('accessory','ribbon',this)">🎀 リボン</button>
+            <button class="opt-btn" data-val="earring" onclick="setOption('accessory','earring',this)">💎 イヤリング</button>
+            <button class="opt-btn" data-val="flower" onclick="setOption('accessory','flower',this)">🌸 お花</button>
+          </div>
+        </div>
+
+        <!-- Outfit -->
+        <div class="custom-section">
+          <div class="custom-label">👗 服装</div>
+          <div class="option-row" id="outfitRow">
+            <button class="opt-btn active" data-val="casual" onclick="setOption('outfit','casual',this)">👕 カジュアル</button>
+            <button class="opt-btn" data-val="formal" onclick="setOption('outfit','formal',this)">👔 フォーマル</button>
+            <button class="opt-btn" data-val="dress" onclick="setOption('outfit','dress',this)">👗 ドレス</button>
+            <button class="opt-btn" data-val="yukata" onclick="setOption('outfit','yukata',this)">👘 浴衣</button>
+          </div>
+        </div>
+
+        <!-- Expression -->
+        <div class="custom-section">
+          <div class="custom-label">😊 表情・感情</div>
+          <div class="expr-grid">
+            <button class="expr-btn active" data-val="happy" onclick="setExpr('happy',this)">😄<span>うれしい</span></button>
+            <button class="expr-btn" data-val="love" onclick="setExpr('love',this)">🥰<span>愛してる</span></button>
+            <button class="expr-btn" data-val="thanks" onclick="setExpr('thanks',this)">🙏<span>感謝</span></button>
+            <button class="expr-btn" data-val="cool" onclick="setExpr('cool',this)">😎<span>クール</span></button>
+            <button class="expr-btn" data-val="excited" onclick="setExpr('excited',this)">🤩<span>感激</span></button>
+            <button class="expr-btn" data-val="shy" onclick="setExpr('shy',this)">😊<span>恥ずかしい</span></button>
+            <button class="expr-btn" data-val="celebrate" onclick="setExpr('celebrate',this)">🎉<span>お祝い</span></button>
+            <button class="expr-btn" data-val="cheer" onclick="setExpr('cheer',this)">💪<span>応援</span></button>
+          </div>
+        </div>
+
+        <!-- Motion -->
+        <div class="custom-section" style="margin-bottom:0;">
+          <div class="custom-label">💃 モーション</div>
+          <div class="motion-grid">
+            <button class="motion-btn active" data-val="bounce" onclick="setMotion('bounce',this)">🦋<span>ジャンプ</span></button>
+            <button class="motion-btn" data-val="wave" onclick="setMotion('wave',this)">👋<span>手を振る</span></button>
+            <button class="motion-btn" data-val="spin" onclick="setMotion('spin',this)">🌀<span>くるくる</span></button>
+            <button class="motion-btn" data-val="heartbeat" onclick="setMotion('heartbeat',this)">💓<span>ドキドキ</span></button>
+            <button class="motion-btn" data-val="tada" onclick="setMotion('tada',this)">🎊<span>やったー</span></button>
+            <button class="motion-btn" data-val="none" onclick="setMotion('none',this)">🧘<span>静止</span></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div>
+      <div class="preview-card">
+        <div class="preview-title">プレビュー</div>
+        <div class="avatar-stage">
+          <canvas id="avatarCanvas" width="180" height="180"></canvas>
+        </div>
+        <div id="avatarNameDisplay" style="font-weight:800; font-size:1rem; margin-bottom:4px;">アバター</div>
+        <div class="expr-display" id="exprDisplay">😄</div>
+        <div class="motion-label" id="motionLabel">ジャンプ中</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="bottom-bar-inner">
+    <a href="gift.html" class="btn btn-outline">
+      <i class="fas fa-arrow-left"></i> 戻る
+    </a>
+    <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="goToCheckout()">
+      メッセージを書く <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Avatar State =====
+const avatarState = {
+  faceColor: '#FFDABB',
+  hairStyle: 'short',
+  hairColor: '#3D2B1F',
+  eyeStyle: 'normal',
+  accessory: 'none',
+  outfit: 'casual',
+  expression: 'happy',
+  motion: 'bounce'
+};
+
+const EXPR_EMOJI = {
+  happy: '😄', love: '🥰', thanks: '🙏', cool: '😎',
+  excited: '🤩', shy: '😊', celebrate: '🎉', cheer: '💪'
+};
+const MOTION_LABEL = {
+  bounce: 'ジャンプ中', wave: '手を振ってる', spin: 'くるくる', heartbeat: 'ドキドキ', tada: 'やったー！', none: 'おすまし'
+};
+
+// ===== Option Setters =====
+function setOption(key, val, el) {
+  avatarState[key] = val;
+  const parentId = { faceColor: 'faceColorRow', hairStyle: 'hairStyleRow', hairColor: 'hairColorRow', eyeStyle: 'eyeStyleRow', accessory: 'accessoryRow', outfit: 'outfitRow' }[key];
+  if (parentId) {
+    document.querySelectorAll(`#${parentId} .opt-btn, #${parentId} .color-swatch`).forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  updatePreview();
+}
+
+function setExpr(val, el) {
+  avatarState.expression = val;
+  document.querySelectorAll('.expr-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('exprDisplay').textContent = EXPR_EMOJI[val];
+  updatePreview();
+}
+
+function setMotion(val, el) {
+  avatarState.motion = val;
+  document.querySelectorAll('.motion-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('motionLabel').textContent = MOTION_LABEL[val];
+  applyMotion();
+}
+
+// ===== Canvas Drawing =====
+const canvas = document.getElementById('avatarCanvas');
+const ctx = canvas.getContext('2d');
+let animFrame = null;
+let animAngle = 0;
+
+function drawAvatar(yOffset = 0, scale = 1, rotation = 0, scaleExtra = 1) {
+  const s = avatarState;
+  ctx.clearRect(0, 0, 180, 180);
+
+  ctx.save();
+  ctx.translate(90, 90 + yOffset);
+  ctx.rotate(rotation);
+  ctx.scale(scale * scaleExtra, scale * scaleExtra);
+  ctx.translate(-90, -90);
+
+  // Body / Outfit
+  const outfitColors = { casual: '#7EC8E3', formal: '#4A5568', dress: '#FF9FB2', yukata: '#6B8E6E' };
+  const bodyColor = outfitColors[s.outfit] || '#7EC8E3';
+
+  // Body
+  ctx.beginPath();
+  ctx.ellipse(90, 148, 34, 26, 0, 0, Math.PI * 2);
+  ctx.fillStyle = bodyColor;
+  ctx.fill();
+
+  // Neck
+  ctx.beginPath();
+  ctx.rect(82, 118, 16, 18);
+  ctx.fillStyle = s.faceColor;
+  ctx.fill();
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(90, 100, 40, 0, Math.PI * 2);
+  ctx.fillStyle = s.faceColor;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Hair
+  drawHair(s.hairStyle, s.hairColor);
+
+  // Eyes
+  drawEyes(s.eyeStyle, s.expression);
+
+  // Nose
+  ctx.beginPath();
+  ctx.arc(90, 104, 3, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Mouth
+  drawMouth(s.expression);
+
+  // Cheeks
+  if (['love', 'shy', 'happy', 'celebrate'].includes(s.expression)) {
+    ctx.beginPath(); ctx.ellipse(68, 108, 8, 5, -0.2, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255, 150, 150, 0.35)'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(112, 108, 8, 5, 0.2, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255, 150, 150, 0.35)'; ctx.fill();
+  }
+
+  // Accessory
+  drawAccessory(s.accessory);
+
+  // Outfit details
+  drawOutfitDetails(s.outfit, bodyColor);
+
+  ctx.restore();
+}
+
+function drawHair(style, color) {
+  ctx.fillStyle = color;
+  if (style === 'short') {
+    ctx.beginPath();
+    ctx.arc(90, 88, 40, Math.PI, 0);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(90, 90, 40, -0.3, Math.PI + 0.3);
+    ctx.fill();
+  } else if (style === 'long') {
+    ctx.beginPath();
+    ctx.arc(90, 88, 40, Math.PI, 0);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(56, 115, 14, 30, -0.15, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(124, 115, 14, 30, 0.15, 0, Math.PI*2);
+    ctx.fill();
+  } else if (style === 'wavy') {
+    ctx.beginPath();
+    ctx.arc(90, 88, 40, Math.PI, 0);
+    ctx.fill();
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(58 + i * 22, 130 + Math.sin(i) * 6, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (style === 'bun') {
+    ctx.beginPath();
+    ctx.arc(90, 88, 40, Math.PI + 0.3, -0.3);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(90, 60, 16, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (style === 'hat') {
+    // Beret
+    ctx.beginPath();
+    ctx.ellipse(90, 75, 38, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(90, 62, 26, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(108, 64, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FF6B9D';
+    ctx.fill();
+  }
+}
+
+function drawEyes(style, expr) {
+  if (['happy', 'celebrate', 'cheer', 'excited'].includes(expr)) {
+    // Happy arcs
+    ctx.beginPath(); ctx.arc(76, 96, 7, Math.PI, 0); ctx.strokeStyle = '#333'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(104, 96, 7, Math.PI, 0); ctx.stroke();
+  } else if (expr === 'love') {
+    // Hearts
+    drawHeart(ctx, 74, 92, 8);
+    drawHeart(ctx, 102, 92, 8);
+  } else if (expr === 'cool') {
+    // Cool shades
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.roundRect(66, 89, 20, 11, 5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(94, 89, 20, 11, 5); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(86,95); ctx.lineTo(94,95); ctx.strokeStyle='#222'; ctx.lineWidth=2; ctx.stroke();
+  } else {
+    const eyeData = { normal: {r:6, fill:'#fff', iris:'#3B5EDB'}, sparkle: {r:7, fill:'#fff', iris:'#FF6B9D'}, sleepy: {r:5, fill:'#fff', iris:'#7B7FCD'} };
+    const e = eyeData[style] || eyeData.normal;
+    // Left eye
+    ctx.beginPath(); ctx.ellipse(76, 96, e.r, e.r*0.9, 0, 0, Math.PI*2); ctx.fillStyle=e.fill; ctx.fill(); ctx.strokeStyle='#333'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(76, 96, e.r*0.55, 0, Math.PI*2); ctx.fillStyle=e.iris; ctx.fill();
+    ctx.beginPath(); ctx.arc(73, 94, 1.5, 0, Math.PI*2); ctx.fillStyle='white'; ctx.fill();
+    // Right eye
+    ctx.beginPath(); ctx.ellipse(104, 96, e.r, e.r*0.9, 0, 0, Math.PI*2); ctx.fillStyle=e.fill; ctx.fill(); ctx.strokeStyle='#333'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(104, 96, e.r*0.55, 0, Math.PI*2); ctx.fillStyle=e.iris; ctx.fill();
+    ctx.beginPath(); ctx.arc(101, 94, 1.5, 0, Math.PI*2); ctx.fillStyle='white'; ctx.fill();
+    if (style === 'sparkle') {
+      ctx.fillStyle = '#FFD700'; ctx.font = '8px serif';
+      ctx.fillText('✦', 81, 88); ctx.fillText('✦', 109, 88);
+    }
+    if (style === 'sleepy') {
+      ctx.beginPath(); ctx.moveTo(70,91); ctx.lineTo(82,91); ctx.strokeStyle='#555'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(98,91); ctx.lineTo(110,91); ctx.stroke();
+    }
+  }
+  if (expr === 'excited' || expr === 'sparkle') {
+    ctx.fillStyle = '#FFD700'; ctx.font = '10px serif';
+    ctx.fillText('★', 60, 82); ctx.fillText('★', 110, 80);
+  }
+}
+
+function drawHeart(ctx, x, y, size) {
+  ctx.save();
+  ctx.fillStyle = '#FF4B6E';
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * 0.3);
+  ctx.bezierCurveTo(x, y - size * 0.3, x - size, y - size * 0.3, x - size, y + size * 0.3);
+  ctx.bezierCurveTo(x - size, y + size * 0.8, x, y + size * 1.2, x, y + size * 1.2);
+  ctx.bezierCurveTo(x, y + size * 1.2, x + size, y + size * 0.8, x + size, y + size * 0.3);
+  ctx.bezierCurveTo(x + size, y - size * 0.3, x, y - size * 0.3, x, y + size * 0.3);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawMouth(expr) {
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = '#333';
+  ctx.lineCap = 'round';
+  if (['happy', 'excited', 'celebrate'].includes(expr)) {
+    ctx.beginPath(); ctx.arc(90, 108, 12, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.fillStyle = '#FF8A9A'; ctx.beginPath(); ctx.arc(90, 108, 10, 0.2, Math.PI - 0.2); ctx.fill();
+  } else if (expr === 'love') {
+    ctx.beginPath(); ctx.arc(90, 110, 10, 0.2, Math.PI - 0.2); ctx.stroke();
+  } else if (expr === 'thanks') {
+    ctx.beginPath(); ctx.moveTo(78, 112); ctx.quadraticCurveTo(90, 118, 102, 112); ctx.stroke();
+  } else if (expr === 'cool') {
+    ctx.beginPath(); ctx.moveTo(80, 112); ctx.lineTo(100, 112); ctx.stroke();
+  } else if (expr === 'shy') {
+    ctx.beginPath(); ctx.arc(90, 112, 8, 0.3, Math.PI - 0.3); ctx.stroke();
+  } else if (expr === 'cheer') {
+    ctx.beginPath(); ctx.arc(90, 106, 14, 0.1, Math.PI - 0.1); ctx.stroke();
+    ctx.fillStyle = '#FF8A9A'; ctx.beginPath(); ctx.arc(90, 108, 11, 0.2, Math.PI - 0.2); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.arc(90, 110, 9, 0.15, Math.PI - 0.15); ctx.stroke();
+  }
+}
+
+function drawAccessory(acc) {
+  if (acc === 'glasses') {
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(66, 90, 18, 14, 4); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(96, 90, 18, 14, 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(84,97); ctx.lineTo(96,97); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(66,97); ctx.lineTo(62,95); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(114,97); ctx.lineTo(118,95); ctx.stroke();
+  } else if (acc === 'ribbon') {
+    ctx.fillStyle = '#FF6B9D';
+    ctx.beginPath(); ctx.ellipse(90, 62, 14, 8, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(90, 62, 14, 8, 0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(90, 62, 5, 0, Math.PI*2); ctx.fillStyle='#FF3B7A'; ctx.fill();
+  } else if (acc === 'earring') {
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath(); ctx.arc(50, 103, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(130, 103, 5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(50, 109, 4, 0, Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.arc(130, 109, 4, 0, Math.PI); ctx.stroke();
+  } else if (acc === 'flower') {
+    ctx.fillStyle = '#FFB7C5';
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.ellipse(108 + Math.cos(i*Math.PI*2/5)*9, 68 + Math.sin(i*Math.PI*2/5)*9, 5, 4, i*Math.PI*2/5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(108, 68, 5, 0, Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
+  }
+}
+
+function drawOutfitDetails(outfit, bodyColor) {
+  if (outfit === 'formal') {
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.ellipse(90, 138, 8, 15, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#FF4B6E'; ctx.fillRect(87, 130, 6, 14);
+    ctx.beginPath(); ctx.arc(90, 130, 4, 0, Math.PI*2); ctx.fillStyle='#CC0044'; ctx.fill();
+  } else if (outfit === 'dress') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(70,130); ctx.lineTo(80,150); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(90,128); ctx.lineTo(90,152); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(110,130); ctx.lineTo(100,150); ctx.stroke();
+  } else if (outfit === 'yukata') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(76,130); ctx.lineTo(90,145); ctx.lineTo(104,130); ctx.stroke();
+  }
+}
+
+// ===== Animation Loop =====
+let motionTime = 0;
+function applyMotion() {
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  const m = avatarState.motion;
+  if (m === 'none') { drawAvatar(); return; }
+  function tick() {
+    motionTime += 0.05;
+    let yOff = 0, rot = 0, sc = 1;
+    if (m === 'bounce') yOff = Math.sin(motionTime * 2.5) * 10;
+    else if (m === 'wave') { yOff = Math.sin(motionTime * 2) * 4; rot = Math.sin(motionTime * 3) * 0.08; }
+    else if (m === 'spin') rot = motionTime * 0.05;
+    else if (m === 'heartbeat') { const p = Math.abs(Math.sin(motionTime * 3)); sc = 1 + p * 0.12; }
+    else if (m === 'tada') {
+      yOff = Math.sin(motionTime * 4) * 6;
+      rot = Math.sin(motionTime * 5) * 0.1;
+      sc = 1 + Math.abs(Math.sin(motionTime * 4)) * 0.08;
+    }
+    drawAvatar(yOff, sc, rot, 1);
+    animFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function updatePreview() {
+  const name = document.getElementById('avatarName').value || 'アバター';
+  document.getElementById('avatarNameDisplay').textContent = name;
+}
+
+// ===== Past Avatars =====
+function loadPastAvatars() {
+  const senderId = getSenderId();
+  fetch(`tables/avatars?search=${senderId}`)
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById('pastAvatarGrid');
+      grid.innerHTML = `<div class="past-avatar-item new-btn" onclick="resetAvatar()" title="新しく作る">＋</div>`;
+      if (data.data) {
+        data.data.filter(a => a.sender_id === senderId).forEach(av => {
+          const div = document.createElement('div');
+          div.className = 'past-avatar-item';
+          div.title = av.name;
+          div.innerHTML = getAvatarFaceEmoji(av);
+          div.onclick = () => loadAvatar(av);
+          grid.appendChild(div);
+        });
+      }
+    }).catch(() => {});
+}
+
+function getAvatarFaceEmoji(av) {
+  const exprs = {happy:'😄',love:'🥰',thanks:'🙏',cool:'😎',excited:'🤩',shy:'😊',celebrate:'🎉',cheer:'💪'};
+  return exprs[av.expression] || '😊';
+}
+
+function loadAvatar(av) {
+  avatarState.faceColor = av.face_color || '#FFDABB';
+  avatarState.hairStyle = av.hair_style || 'short';
+  avatarState.hairColor = av.hair_color || '#3D2B1F';
+  avatarState.eyeStyle = av.eye_style || 'normal';
+  avatarState.accessory = av.accessory || 'none';
+  avatarState.outfit = av.outfit || 'casual';
+  document.getElementById('avatarName').value = av.name || '';
+
+  // Update UI buttons
+  refreshUI();
+  updatePreview();
+  applyMotion();
+  showToast('✨ アバターを読み込みました！');
+}
+
+function refreshUI() {
+  const s = avatarState;
+  const updates = [
+    { id: 'faceColorRow', key: 'faceColor', type: 'color' },
+    { id: 'hairStyleRow', key: 'hairStyle', type: 'btn' },
+    { id: 'hairColorRow', key: 'hairColor', type: 'color' },
+    { id: 'eyeStyleRow', key: 'eyeStyle', type: 'btn' },
+    { id: 'accessoryRow', key: 'accessory', type: 'btn' },
+    { id: 'outfitRow', key: 'outfit', type: 'btn' }
+  ];
+  updates.forEach(u => {
+    const container = document.getElementById(u.id);
+    container.querySelectorAll('.opt-btn, .color-swatch').forEach(el => {
+      el.classList.toggle('active', el.dataset.val === s[u.key]);
+    });
+  });
+}
+
+function resetAvatar() {
+  avatarState.faceColor = '#FFDABB';
+  avatarState.hairStyle = 'short';
+  avatarState.hairColor = '#3D2B1F';
+  avatarState.eyeStyle = 'normal';
+  avatarState.accessory = 'none';
+  avatarState.outfit = 'casual';
+  avatarState.expression = 'happy';
+  avatarState.motion = 'bounce';
+  document.getElementById('avatarName').value = '';
+  refreshUI();
+  document.querySelectorAll('.expr-btn').forEach(b => b.classList.toggle('active', b.dataset.val === 'happy'));
+  document.querySelectorAll('.motion-btn').forEach(b => b.classList.toggle('active', b.dataset.val === 'bounce'));
+  document.getElementById('exprDisplay').textContent = '😄';
+  document.getElementById('motionLabel').textContent = 'ジャンプ中';
+  updatePreview();
+  applyMotion();
+}
+
+// ===== Sender ID =====
+function getSenderId() {
+  let id = localStorage.getItem('obt_sender_id');
+  if (!id) {
+    id = 'sender_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    localStorage.setItem('obt_sender_id', id);
+  }
+  return id;
+}
+
+// ===== Save & Proceed =====
+async function goToCheckout() {
+  const senderName = document.getElementById('senderName').value.trim();
+  const recipientName = document.getElementById('recipientName').value.trim();
+  const avatarName = document.getElementById('avatarName').value.trim() || 'マイアバター';
+
+  if (!senderName) { showToast('⚠️ あなたの名前を入力してください'); return; }
+  if (!recipientName) { showToast('⚠️ 受け取り手の名前を入力してください'); return; }
+
+  const gift = JSON.parse(sessionStorage.getItem('selectedGift') || '{}');
+  if (!gift.id) { showToast('⚠️ ギフトが選択されていません'); window.location.href='index.html'; return; }
+
+  // Save avatar to DB
+  try {
+    const avatarPayload = {
+      sender_id: getSenderId(),
+      name: avatarName,
+      face_color: avatarState.faceColor,
+      hair_style: avatarState.hairStyle,
+      hair_color: avatarState.hairColor,
+      eye_style: avatarState.eyeStyle,
+      accessory: avatarState.accessory,
+      outfit: avatarState.outfit,
+      expression: avatarState.expression,
+      motion: avatarState.motion
+    };
+    const res = await fetch('tables/avatars', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(avatarPayload)
+    });
+    const savedAvatar = await res.json();
+
+    sessionStorage.setItem('avatarData', JSON.stringify({ ...avatarState, id: savedAvatar.id, name: avatarName }));
+    sessionStorage.setItem('senderName', senderName);
+    sessionStorage.setItem('recipientName', recipientName);
+
+    window.location.href = 'checkout.html';
+  } catch (e) {
+    // Proceed anyway
+    sessionStorage.setItem('avatarData', JSON.stringify({ ...avatarState, name: avatarName }));
+    sessionStorage.setItem('senderName', senderName);
+    sessionStorage.setItem('recipientName', recipientName);
+    window.location.href = 'checkout.html';
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== Init =====
+const gift = JSON.parse(sessionStorage.getItem('selectedGift') || '{}');
+if (gift.name) {
+  document.getElementById('giftEmojiDisplay').textContent = gift.emoji;
+  document.getElementById('giftNameDisplay').textContent = gift.name;
+  document.getElementById('giftPriceDisplay').textContent = '¥' + (gift.price||0).toLocaleString();
+}
+
+loadPastAvatars();
+applyMotion();
+</script>
+</body>
+</html>

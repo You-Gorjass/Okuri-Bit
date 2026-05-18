@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなのギフト — コミュニティ | Okuri-Bit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #F5F0FF; }
+
+    /* ===== Page Hero ===== */
+    .community-hero {
+      background: linear-gradient(135deg, #302b63 0%, #A855F7 50%, #FF6B9D 100%);
+      padding: 60px 24px 50px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .community-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .community-hero h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 900;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .community-hero p {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+      position: relative;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat .num { font-size: 1.8rem; font-weight: 900; }
+    .hero-stat .label { font-size: 0.75rem; opacity: 0.8; }
+
+    /* ===== Main Layout ===== */
+    .community-main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    /* ===== Tabs ===== */
+    .comm-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .comm-tab {
+      padding: 9px 22px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #e0d4f7;
+      background: white;
+      color: #A855F7;
+      transition: all 0.2s;
+    }
+    .comm-tab.active {
+      background: linear-gradient(135deg, #A855F7, #7c3aed);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(168,85,247,0.4);
+    }
+    .comm-tab:hover:not(.active) { background: #f5eeff; }
+
+    /* ===== Post Feed ===== */
+    .post-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .post-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(168,85,247,0.1);
+      overflow: hidden;
+      transition: all 0.25s;
+      border: 1px solid rgba(168,85,247,0.08);
+    }
+    .post-card:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(168,85,247,0.18); }
+
+    .post-header {
+      padding: 18px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .post-avatar {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, #F3E8FF, #FFE4F5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .post-meta .poster-name { font-weight: 800; font-size: 0.95rem; }
+    .post-meta .post-sub { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+    .post-tag {
+      margin-left: auto;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .post-gift-banner {
+      margin: 0 20px 14px;
+      background: linear-gradient(135deg, #F3E8FF, #FFF0F8);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .post-gift-emoji { font-size: 2.4rem; }
+    .post-gift-info .gift-name { font-weight: 800; font-size: 1rem; }
+    .post-gift-info .gift-price { color: var(--primary); font-weight: 700; font-size: 0.85rem; margin-top: 2px; }
+    .post-gift-info .gift-relation { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+
+    .post-body {
+      padding: 0 20px 14px;
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: #333;
+    }
+
+    .post-footer {
+      padding: 12px 20px 16px;
+      border-top: 1px solid #f5f5f5;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .post-like-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 2px solid #f0e8ff;
+      border-radius: 50px;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #A855F7;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .post-like-btn:hover, .post-like-btn.liked {
+      background: linear-gradient(135deg,#A855F7,#7c3aed);
+      color: white;
+      border-color: transparent;
+    }
+    .post-time { font-size: 0.75rem; color: #bbb; margin-left: auto; }
+
+    /* ===== New Post Button ===== */
+    .new-post-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 24px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 24px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(255,107,157,0.45);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 200;
+      transition: all 0.25s;
+    }
+    .new-post-fab:hover { transform: scale(1.05); }
+
+    /* ===== Post Modal ===== */
+    .post-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .post-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .post-modal {
+      background: white;
+      border-radius: 28px;
+      padding: 32px;
+      max-width: 540px;
+      width: 100%;
+      transform: scale(0.92);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .post-modal-overlay.open .post-modal { transform: scale(1); }
+    .pm-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+    .pm-field { margin-bottom: 18px; }
+    .pm-label { font-size: 0.82rem; font-weight: 700; color: #666; margin-bottom: 6px; }
+    .pm-input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 2px solid #eee;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .pm-input:focus { border-color: #A855F7; }
+    .pm-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #eee;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      min-height: 110px;
+      transition: border-color 0.2s;
+      line-height: 1.7;
+    }
+    .pm-textarea:focus { border-color: #A855F7; }
+    .pm-select {
+      width: 100%;
+      padding: 11px 16px;
+      border: 2px solid #eee;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      background: white;
+      transition: border-color 0.2s;
+    }
+    .pm-select:focus { border-color: #A855F7; }
+    .pm-emoji-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pm-emoji-btn {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #f5f0ff;
+      border: 2px solid transparent;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .pm-emoji-btn:hover, .pm-emoji-btn.sel { border-color: #A855F7; background: #ede9ff; }
+    .pm-btns { display: flex; gap: 12px; margin-top: 8px; }
+
+    /* ===== Loading ===== */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: #A855F7;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    /* ===== Empty ===== */
+    .empty-feed {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+    }
+    .empty-feed .ef-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ===== Filter bar ===== */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .fb-chip {
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #e0d4f7;
+      background: white;
+      color: #888;
+      transition: all 0.2s;
+    }
+    .fb-chip.active {
+      border-color: #A855F7;
+      color: #A855F7;
+      background: #f5eeff;
+    }
+    .fb-chip:hover:not(.active) { border-color: #A855F7; color: #A855F7; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎁</div>
+      <span class="logo-text">Okuri-Bit</span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="btn btn-outline"><i class="fas fa-home"></i> トップ</a>
+      <a href="giftalk.html" class="btn btn-outline" style="border-color:var(--secondary);color:var(--secondary);">
+        <i class="fas fa-robot"></i> Giftalk
+      </a>
+      <a href="reactions.html" class="btn btn-outline"><i class="fas fa-bell"></i> リアクション</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="community-hero">
+  <h1>📸 みんなのギフト体験</h1>
+  <p>もらって嬉しかった！感動した！<br>あなたのギフト体験を投稿してシェアしよう</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num" id="totalPosts">–</div>
+      <div class="label">投稿数</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num" id="totalLikes">–</div>
+      <div class="label">いいね数</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">毎日</div>
+      <div class="label">更新中</div>
+    </div>
+  </div>
+</section>
+
+<!-- Main -->
+<main class="community-main">
+
+  <!-- Tabs -->
+  <div class="comm-tabs">
+    <button class="comm-tab active" onclick="setTab('recent', this)">🕐 新着順</button>
+    <button class="comm-tab" onclick="setTab('popular', this)">🔥 人気順</button>
+    <button class="comm-tab" onclick="setTab('cheer', this)">💪 応援</button>
+    <button class="comm-tab" onclick="setTab('thanks', this)">🙏 感謝</button>
+    <button class="comm-tab" onclick="setTab('love', this)">💕 愛情</button>
+    <button class="comm-tab" onclick="setTab('care', this)">🫶 労い</button>
+  </div>
+
+  <!-- Post Feed -->
+  <div id="postFeed" class="post-feed">
+    <div class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i> &nbsp;読み込み中...</div>
+  </div>
+
+</main>
+
+<!-- New Post FAB -->
+<button class="new-post-fab" onclick="openPostModal()">
+  <i class="fas fa-plus"></i> もらったを投稿する
+</button>
+
+<!-- Post Modal -->
+<div class="post-modal-overlay" id="postModalOverlay" onclick="closeModalIfBg(event)">
+  <div class="post-modal" id="postModal">
+    <div class="pm-title">🎁 ギフト体験を投稿</div>
+
+    <div class="pm-field">
+      <div class="pm-label">ニックネーム *</div>
+      <input class="pm-input" id="pmName" placeholder="例: はなこ" maxlength="20">
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">あなたのアイコン絵文字</div>
+      <div class="pm-emoji-row" id="pmAvatarRow">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">もらったギフト名 *</div>
+      <input class="pm-input" id="pmGiftName" placeholder="例: お花のブーケ">
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">ギフトの絵文字</div>
+      <div class="pm-emoji-row" id="pmGiftEmojiRow">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">贈り手との関係</div>
+      <select class="pm-select" id="pmRelation">
+        <option value="友人">友人・友達</option>
+        <option value="恋人">恋人</option>
+        <option value="家族">家族</option>
+        <option value="上司・先輩">上司・先輩</option>
+        <option value="同僚・後輩">同僚・後輩</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">感情タグ</div>
+      <select class="pm-select" id="pmEmotion">
+        <option value="応援">💪 応援してもらった</option>
+        <option value="感謝">🙏 感謝された</option>
+        <option value="労い">🫶 労ってもらった</option>
+        <option value="愛情">💕 愛情を感じた</option>
+        <option value="誕生日">🎂 誕生日プレゼント</option>
+        <option value="お祝い">🎉 お祝いされた</option>
+        <option value="下心（笑）">😏 なんか下心感じた（笑）</option>
+        <option value="その他">🎲 その他</option>
+      </select>
+    </div>
+
+    <div class="pm-field">
+      <div class="pm-label">ギフト体験を投稿 * <span style="font-weight:400;color:#aaa;">（何をもらって、どんな気持ちだったか）</span></div>
+      <textarea class="pm-textarea" id="pmMessage" placeholder="例: 友達がサプライズで花束を贈ってくれました！アバター演出が可愛すぎて泣きそうになりました😭"></textarea>
+    </div>
+
+    <div class="pm-btns">
+      <button class="btn btn-primary btn-full" onclick="submitPost()">
+        <i class="fas fa-paper-plane"></i> 投稿する
+      </button>
+      <button class="btn btn-outline" onclick="closePostModal()" style="white-space:nowrap;">
+        キャンセル
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+let allPosts = [];
+let currentTab = 'recent';
+let selectedAvatarEmoji = '😊';
+let selectedGiftEmoji = '🎁';
+const myUserId = 'u_' + Math.random().toString(36).substr(2,8);
+
+const AVATAR_EMOJIS = ['😊','😄','🥰','😎','🤗','😇','🌸','🌟','🦊','🐼','🐱','🎭'];
+const GIFT_EMOJIS   = ['🎁','💐','🍰','☕','🧸','💍','🍷','🛁','📚','🍫','✈️','🎮','🥩','📷','🕯️','🍓'];
+
+// ===== Load Posts =====
+async function loadPosts() {
+  try {
+    const res = await fetch('tables/gift_posts?limit=50&sort=created_at');
+    const data = await res.json();
+    allPosts = data.data || [];
+    renderFeed();
+    updateStats();
+  } catch(e) {
+    document.getElementById('postFeed').innerHTML = '<div class="empty-feed"><div class="ef-icon">😔</div><p>投稿を読み込めませんでした</p></div>';
+  }
+}
+
+function updateStats() {
+  document.getElementById('totalPosts').textContent = allPosts.length + '+';
+  const totalLikes = allPosts.reduce((s,p) => s + (p.likes || 0), 0);
+  document.getElementById('totalLikes').textContent = totalLikes + '+';
+}
+
+// ===== Tabs =====
+function setTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.comm-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderFeed();
+}
+
+function renderFeed() {
+  let posts = [...allPosts];
+
+  // Filter
+  const emotionMap = {
+    cheer: '応援', thanks: '感謝', love: '愛情', care: '労い',
+  };
+  if (emotionMap[currentTab]) {
+    posts = posts.filter(p => p.emotion_tag && p.emotion_tag.includes(emotionMap[currentTab]));
+  }
+
+  // Sort
+  if (currentTab === 'popular') {
+    posts.sort((a,b) => (b.likes||0) - (a.likes||0));
+  } else {
+    posts.sort((a,b) => (b.created_at||0) - (a.created_at||0));
+  }
+
+  const feed = document.getElementById('postFeed');
+  if (posts.length === 0) {
+    feed.innerHTML = `<div class="empty-feed"><div class="ef-icon">📭</div><p>まだ投稿がありません。<br>最初の投稿者になりませんか？</p></div>`;
+    return;
+  }
+
+  feed.innerHTML = posts.map(p => renderPostCard(p)).join('');
+}
+
+function renderPostCard(p) {
+  const likedByArr = p.liked_by ? p.liked_by.split(',').filter(Boolean) : [];
+  const isLiked = likedByArr.includes(myUserId);
+  const timeAgo = getTimeAgo(p.created_at);
+
+  return `
+    <article class="post-card">
+      <div class="post-header">
+        <div class="post-avatar">${p.poster_emoji || '😊'}</div>
+        <div class="post-meta">
+          <div class="poster-name">${escHtml(p.poster_name || '匿名')}</div>
+          <div class="post-sub">${escHtml(p.sender_relation || '')} より</div>
+        </div>
+        ${p.emotion_tag ? `<div class="post-tag">${escHtml(p.emotion_tag)}</div>` : ''}
+      </div>
+
+      <div class="post-gift-banner">
+        <div class="post-gift-emoji">${p.gift_emoji || '🎁'}</div>
+        <div class="post-gift-info">
+          <div class="gift-name">${escHtml(p.gift_name || 'ギフト')}</div>
+          ${p.gift_price ? `<div class="gift-price">¥${Number(p.gift_price).toLocaleString()}</div>` : ''}
+          <div class="gift-relation">${escHtml(p.sender_relation || '')} から</div>
+        </div>
+      </div>
+
+      <div class="post-body">${escHtml(p.message || '')}</div>
+
+      <div class="post-footer">
+        <button class="post-like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${p.id}', this)">
+          <i class="fas fa-heart"></i>
+          <span class="like-count">${p.likes || 0}</span>
+        </button>
+        <div class="post-time">${timeAgo}</div>
+      </div>
+    </article>
+  `;
+}
+
+// ===== Like =====
+async function toggleLike(postId, btn) {
+  const post = allPosts.find(p => p.id === postId);
+  if (!post) return;
+
+  const likedByArr = post.liked_by ? post.liked_by.split(',').filter(Boolean) : [];
+  const alreadyLiked = likedByArr.includes(myUserId);
+
+  let newLikes = (post.likes || 0);
+  let newLikedBy = [...likedByArr];
+
+  if (alreadyLiked) {
+    newLikes = Math.max(0, newLikes - 1);
+    newLikedBy = newLikedBy.filter(id => id !== myUserId);
+  } else {
+    newLikes++;
+    newLikedBy.push(myUserId);
+  }
+
+  // Optimistic update
+  post.likes = newLikes;
+  post.liked_by = newLikedBy.join(',');
+  btn.classList.toggle('liked', !alreadyLiked);
+  btn.querySelector('.like-count').textContent = newLikes;
+
+  try {
+    await fetch(`tables/gift_posts/${postId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ likes: newLikes, liked_by: post.liked_by }),
+    });
+  } catch(e) { console.warn('Like update failed', e); }
+}
+
+// ===== New Post Modal =====
+function openPostModal() {
+  renderEmojiPicker('pmAvatarRow', AVATAR_EMOJIS, selectedAvatarEmoji, (e) => { selectedAvatarEmoji = e; });
+  renderEmojiPicker('pmGiftEmojiRow', GIFT_EMOJIS, selectedGiftEmoji, (e) => { selectedGiftEmoji = e; });
+  document.getElementById('postModalOverlay').classList.add('open');
+}
+function closePostModal() {
+  document.getElementById('postModalOverlay').classList.remove('open');
+}
+function closeModalIfBg(e) {
+  if (e.target === document.getElementById('postModalOverlay')) closePostModal();
+}
+
+function renderEmojiPicker(containerId, emojis, selected, onSelect) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = emojis.map(em => `
+    <button class="pm-emoji-btn ${em === selected ? 'sel' : ''}" onclick="pickEmoji('${containerId}', '${em}', this)">
+      ${em}
+    </button>
+  `).join('');
+  container._onSelect = onSelect;
+}
+
+function pickEmoji(containerId, emoji, btn) {
+  document.querySelectorAll(`#${containerId} .pm-emoji-btn`).forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if (containerId === 'pmAvatarRow') selectedAvatarEmoji = emoji;
+  else selectedGiftEmoji = emoji;
+}
+
+async function submitPost() {
+  const name = document.getElementById('pmName').value.trim();
+  const giftName = document.getElementById('pmGiftName').value.trim();
+  const message = document.getElementById('pmMessage').value.trim();
+  const relation = document.getElementById('pmRelation').value;
+  const emotion = document.getElementById('pmEmotion').value;
+
+  if (!name || !giftName || !message) {
+    showToast('⚠️ ニックネーム・ギフト名・投稿文を入力してください');
+    return;
+  }
+
+  const btn = document.querySelector('.pm-btns .btn-primary');
+  btn.textContent = '投稿中...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('tables/gift_posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        poster_name: name,
+        poster_emoji: selectedAvatarEmoji,
+        gift_name: giftName,
+        gift_emoji: selectedGiftEmoji,
+        gift_price: 0,
+        message,
+        sender_relation: relation,
+        emotion_tag: emotion,
+        image_emoji: selectedGiftEmoji,
+        likes: 0,
+        liked_by: '',
+      }),
+    });
+    const newPost = await res.json();
+    allPosts.unshift(newPost);
+    renderFeed();
+    updateStats();
+    closePostModal();
+    showToast('🎉 投稿しました！');
+    // Reset form
+    ['pmName','pmGiftName','pmMessage'].forEach(id => document.getElementById(id).value = '');
+  } catch(e) {
+    showToast('投稿に失敗しました。もう一度お試しください。');
+  } finally {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> 投稿する';
+    btn.disabled = false;
+  }
+}
+
+// ===== Utils =====
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function getTimeAgo(ts) {
+  if (!ts) return '少し前';
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'たった今';
+  if (m < 60) return `${m}分前`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}時間前`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}日前`;
+  return `${Math.floor(d/30)}ヶ月前`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== Init =====
+loadPosts();
+</script>
+</body>
+</html>

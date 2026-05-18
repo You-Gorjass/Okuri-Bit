@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ギフトを選ぶ — Okuri-Bit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: #F5F0FF; }
+
+    /* ===== Page Tabs ===== */
+    .page-tab-bar {
+      background: white;
+      border-bottom: 2px solid #f0e8ff;
+      position: sticky;
+      top: 70px;
+      z-index: 90;
+    }
+    .page-tab-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 20px;
+    }
+    .page-tab-inner::-webkit-scrollbar { display: none; }
+    .page-tab {
+      flex-shrink: 0;
+      padding: 16px 24px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #aaa;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+    .page-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .page-tab:hover:not(.active) { color: #666; }
+
+    /* ===== Tab Panels ===== */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===========================
+       TAB 1: EMOTION SELECT
+       =========================== */
+    .emotion-hero {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%);
+      padding: 56px 24px 44px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .emotion-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(168,85,247,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .emotion-hero h2 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 900; color: white;
+      margin-bottom: 10px; position: relative;
+    }
+    .emotion-hero p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem; position: relative; line-height: 1.7;
+    }
+
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 14px;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    .emotion-card {
+      background: white;
+      border: 2px solid #ece4ff;
+      border-radius: 22px;
+      padding: 22px 12px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .emotion-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px rgba(168,85,247,0.22);
+      border-color: #A855F7;
+    }
+    .emotion-card.active {
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      border-color: transparent;
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px rgba(255,107,157,0.4);
+    }
+    .ec-emoji { font-size: 2.4rem; display: block; margin-bottom: 9px; }
+    .ec-label { font-size: 0.9rem; font-weight: 800; color: #333; }
+    .emotion-card.active .ec-label { color: white; }
+    .ec-sub { font-size: 0.7rem; color: #aaa; margin-top: 3px; }
+    .emotion-card.active .ec-sub { color: rgba(255,255,255,0.75); }
+
+    /* Proposal area */
+    .proposal-area {
+      background: white;
+      padding: 0 24px 60px;
+    }
+    .proposal-inner { max-width: 1100px; margin: 0 auto; }
+    .proposal-title-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 32px 0 24px;
+      flex-wrap: wrap;
+    }
+    .emotion-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white; padding: 8px 20px; border-radius: 50px;
+      font-size: 0.9rem; font-weight: 800;
+    }
+    .proposal-subtitle { color: #888; font-size: 0.88rem; }
+
+    /* === Single gifts row === */
+    .proposal-block { margin-bottom: 40px; }
+    .proposal-block-title {
+      font-size: 1rem; font-weight: 800; color: #333;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .pb-badge {
+      font-size: 0.68rem; font-weight: 800;
+      padding: 2px 8px; border-radius: 8px; color: white;
+    }
+    .pb-badge.single { background: #FF6B9D; }
+    .pb-badge.set { background: #A855F7; }
+
+    .single-gifts-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .proposal-gift-card {
+      background: linear-gradient(145deg, #FFF5F8, #F8F0FF);
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .proposal-gift-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(255,107,157,0.18);
+    }
+    .proposal-gift-card.selected {
+      border-color: var(--primary);
+      background: linear-gradient(145deg, #FFF0F7, #F0E8FF);
+      box-shadow: 0 8px 28px rgba(255,107,157,0.25);
+    }
+    .pgc-emoji { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+    .pgc-name { font-size: 0.85rem; font-weight: 800; margin-bottom: 4px; }
+    .pgc-price { color: var(--primary); font-weight: 800; font-size: 0.82rem; }
+    .pgc-desc { font-size: 0.7rem; color: #aaa; margin-top: 3px; }
+    .pgc-sel-mark {
+      position: absolute; top: 8px; right: 8px;
+      width: 20px; height: 20px;
+      background: var(--primary); color: white;
+      border-radius: 50%; font-size: 0.6rem;
+      display: none; align-items: center; justify-content: center;
+      font-weight: 900;
+    }
+    .proposal-gift-card.selected .pgc-sel-mark { display: flex; }
+
+    /* === Set gift cards === */
+    .set-gifts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .set-card {
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    .set-card:hover { border-color: #A855F7; box-shadow: 0 12px 40px rgba(168,85,247,0.18); }
+    .set-card.selected { border-color: #FF6B9D; box-shadow: 0 12px 40px rgba(255,107,157,0.28); }
+    .set-card-header {
+      background: linear-gradient(135deg, #A855F7, #7c3aed);
+      padding: 13px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      color: white;
+    }
+    .set-card.alt-header .set-card-header { background: linear-gradient(135deg, #FF6B9D, #e0558a); }
+    .set-card-label { font-size: 0.78rem; font-weight: 800; opacity: 0.9; }
+    .set-card-price { font-size: 1.05rem; font-weight: 900; }
+    .set-items-row {
+      display: grid; grid-template-columns: repeat(3,1fr);
+    }
+    .set-item {
+      padding: 15px 8px;
+      text-align: center;
+      border-right: 1px solid #f5f5f5;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .set-item:last-child { border-right: none; }
+    .set-item:hover { background: #fef0f7; }
+    .set-item.item-hl { background: #fef0f7; }
+    .set-item.item-hl::after {
+      content: '✓';
+      position: absolute; top: 5px; right: 6px;
+      color: var(--primary); font-size: 0.78rem; font-weight: 900;
+    }
+    .si-emoji { font-size: 1.9rem; display: block; margin-bottom: 5px; }
+    .si-name { font-size: 0.75rem; font-weight: 700; }
+    .si-desc { font-size: 0.65rem; color: #aaa; margin-top: 2px; }
+    .set-card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #f5f5f5;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .set-hint { font-size: 0.75rem; color: #aaa; }
+    .set-hint strong { color: #A855F7; }
+
+    /* =====================
+       TAB 2: ALL GIFTS (single + set tabs inside)
+       ===================== */
+    .all-gifts-section { padding: 32px 24px 80px; max-width: 1100px; margin: 0 auto; }
+
+    .inner-tab-bar {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .inner-tab {
+      padding: 10px 22px; border-radius: 50px;
+      font-size: 0.88rem; font-weight: 800;
+      cursor: pointer;
+      border: 2px solid #e0d4f7;
+      background: white; color: #A855F7;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .inner-tab.active {
+      background: linear-gradient(135deg, #A855F7, #7c3aed);
+      color: white; border-color: transparent;
+      box-shadow: 0 4px 14px rgba(168,85,247,0.4);
+    }
+    .inner-tab:hover:not(.active) { background: #f5eeff; }
+    .inner-panel { display: none; }
+    .inner-panel.active { display: block; }
+
+    /* Filter row */
+    .filter-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .filter-chip {
+      padding: 7px 18px; border-radius: 50px;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #e8e8e8; background: white; color: #888;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .filter-chip.active {
+      background: var(--gradient); color: white; border-color: transparent;
+      box-shadow: 0 4px 12px rgba(255,107,157,0.3);
+    }
+    .filter-chip:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+    .price-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .price-chip {
+      padding: 5px 14px; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 700;
+      cursor: pointer;
+      border: 2px solid #e8e8e8; background: white; color: #888;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .price-chip.active { border-color: var(--secondary); color: var(--secondary); background: #f5ecff; }
+
+    .search-wrap { position: relative; max-width: 460px; margin-bottom: 22px; }
+    .search-wrap input {
+      width: 100%; padding: 11px 16px 11px 40px;
+      border: 2px solid #eee; border-radius: 50px;
+      font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .search-wrap input:focus { border-color: var(--primary); }
+    .search-wrap .si { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #bbb; }
+
+    /* Single gift grid */
+    .gifts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    /* All-sets grid */
+    .all-sets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 22px;
+    }
+    .empty-state { text-align: center; padding: 56px 20px; color: #aaa; }
+    .empty-state .es-icon { font-size: 2.8rem; margin-bottom: 10px; }
+
+    /* =====================
+       Selected banner (bottom)
+       ===================== */
+    .sel-banner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+      padding: 14px 24px;
+      z-index: 200;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .sel-banner.visible { transform: translateY(0); }
+    .sel-banner-inner {
+      max-width: 720px; margin: 0 auto;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .sel-preview {
+      display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;
+    }
+    .sel-emojibox {
+      font-size: 1.8rem; width: 50px; height: 50px;
+      background: #F8F0FF; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sel-info .sel-name { font-weight: 800; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .sel-info .sel-price { color: var(--primary); font-weight: 800; font-size: 0.88rem; }
+    .sel-info .sel-type { display: inline-block; background: linear-gradient(135deg,#FF6B9D,#A855F7); color:white; font-size:0.62rem; font-weight:800; padding:2px 7px; border-radius:8px; margin-left:5px; vertical-align:middle; }
+    .sel-clear { background: none; border: none; color: #bbb; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; padding: 4px; }
+    .sel-clear:hover { color: #888; }
+  </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎁</div>
+      <span class="logo-text">Okuri-Bit</span>
+    </a>
+    <nav class="header-nav">
+      <a href="community.html" class="btn btn-outline"><i class="fas fa-users"></i> みんなの投稿</a>
+      <a href="giftalk.html" class="btn btn-outline" style="border-color:var(--secondary);color:var(--secondary);">
+        <i class="fas fa-robot"></i> Giftalk
+      </a>
+      <a href="reactions.html" class="btn btn-outline"><i class="fas fa-bell"></i> リアクション</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Page Tab Bar -->
+<div class="page-tab-bar">
+  <div class="page-tab-inner">
+    <button class="page-tab active" onclick="switchPageTab('emotion',this)">💭 気持ちから選ぶ</button>
+    <button class="page-tab" onclick="switchPageTab('all',this)">🛍️ 全ギフトから選ぶ</button>
+  </div>
+</div>
+
+<!-- ====== TAB: EMOTION ====== -->
+<div class="tab-panel active" id="panel-emotion">
+
+  <div class="emotion-hero">
+    <h2>今の気持ちは何ですか？</h2>
+    <p>感情を選ぶと、ぴったりの単品ギフト＆3択セットを提案します</p>
+  </div>
+
+  <div class="emotion-grid" id="emotionGrid">
+    <!-- JS render -->
+  </div>
+
+  <!-- Proposal area (shown after selecting emotion) -->
+  <div class="proposal-area" id="proposalArea" style="display:none;">
+    <div class="proposal-inner">
+      <div class="proposal-title-bar">
+        <div class="emotion-badge" id="propEmotionBadge">💪 応援</div>
+        <div class="proposal-subtitle" id="propSubtitle">に合ったギフトを提案します</div>
+      </div>
+
+      <!-- Single gifts -->
+      <div class="proposal-block" id="singleBlock">
+        <div class="proposal-block-title">
+          <span>おすすめ単品ギフト</span>
+          <span class="pb-badge single">1つ選んで贈る</span>
+        </div>
+        <div class="single-gifts-row" id="singleGiftsRow"><!-- JS --></div>
+      </div>
+
+      <!-- Set gifts -->
+      <div class="proposal-block" id="setBlock">
+        <div class="proposal-block-title">
+          <span>3択セットギフト</span>
+          <span class="pb-badge set">受け取り手が選べる</span>
+        </div>
+        <div class="set-gifts-grid" id="propSetGrid"><!-- JS --></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ====== TAB: ALL GIFTS ====== -->
+<div class="tab-panel" id="panel-all">
+  <div class="all-gifts-section">
+    <div class="inner-tab-bar">
+      <button class="inner-tab active" onclick="switchInnerTab('single',this)">🎁 単品ギフト</button>
+      <button class="inner-tab" onclick="switchInnerTab('sets',this)">🎀 3択セットギフト</button>
+    </div>
+
+    <!-- INNER: Single -->
+    <div class="inner-panel active" id="inner-single">
+      <div class="search-wrap">
+        <i class="fas fa-search si"></i>
+        <input type="text" id="singleSearch" placeholder="ギフトを検索..." oninput="renderSingleGifts()">
+      </div>
+      <div class="filter-row" id="singleCatRow"><!-- JS --></div>
+      <div class="price-row" id="singlePriceRow"><!-- JS --></div>
+      <div class="gifts-grid" id="singleGrid"><!-- JS --></div>
+      <div class="empty-state" id="singleEmpty" style="display:none;"><div class="es-icon">🔍</div><p>該当するギフトがありません</p></div>
+    </div>
+
+    <!-- INNER: Sets -->
+    <div class="inner-panel" id="inner-sets">
+      <div class="filter-row" id="setCatRow"><!-- JS --></div>
+      <div class="price-row" id="setPriceRow"><!-- JS --></div>
+      <div class="all-sets-grid" id="setsGrid"><!-- JS --></div>
+      <div class="empty-state" id="setsEmpty" style="display:none;"><div class="es-icon">🔍</div><p>該当するセットがありません</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Selected Banner -->
+<div class="sel-banner" id="selBanner">
+  <div class="sel-banner-inner">
+    <div class="sel-preview">
+      <div class="sel-emojibox" id="selEmoji">🎁</div>
+      <div class="sel-info">
+        <div class="sel-name" id="selName">ギフト名</div>
+        <div class="sel-price" id="selPrice">¥0</div>
+      </div>
+    </div>
+    <button class="sel-clear" onclick="clearSelection()" title="選択解除"><i class="fas fa-times"></i></button>
+    <button class="btn btn-primary" onclick="goToAvatar()">
+      アバターを作る <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Giftalk floating -->
+<a href="giftalk.html" id="giftalkFloatBtn" style="position:fixed;bottom:90px;right:24px;z-index:190;background:linear-gradient(135deg,#A855F7,#7c3aed);color:white;padding:13px 18px;border-radius:50px;font-size:0.82rem;font-weight:800;box-shadow:0 8px 28px rgba(168,85,247,0.5);text-decoration:none;display:flex;align-items:center;gap:7px;animation:gt-pulse 2s ease-in-out infinite;">
+  <i class="fas fa-robot"></i> ギフト選びが不安？Giftalkへ
+</a>
+<style>@keyframes gt-pulse{0%,100%{box-shadow:0 8px 28px rgba(168,85,247,0.5);}50%{box-shadow:0 8px 44px rgba(168,85,247,0.8);}}</style>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const GIFTS = [
+  { id:'g1',  name:'お花のブーケ',         emoji:'💐', price:3000,  cat:'love',     tags:['birthday','thanks','love','seasonal'], desc:'色とりどりの花束',            emotions:['thanks','care','love'] },
+  { id:'g2',  name:'スイーツセット',        emoji:'🍰', price:2500,  cat:'food',     tags:['birthday','thanks'],                   desc:'特製ケーキ&マカロン',          emotions:['thanks','duty','self'] },
+  { id:'g3',  name:'バルーンギフト',        emoji:'🎈', price:1500,  cat:'fun',      tags:['birthday','cheer'],                    desc:'カラフルバルーン',              emotions:['cheer','self'] },
+  { id:'g4',  name:'コーヒーギフト',        emoji:'☕', price:2000,  cat:'drink',    tags:['thanks','work'],                       desc:'プレミアムコーヒー',            emotions:['care','duty','thanks'] },
+  { id:'g5',  name:'ぬいぐるみ',            emoji:'🧸', price:3500,  cat:'love',     tags:['love','birthday'],                     desc:'ふわふわくまのぬいぐるみ',      emotions:['love','hidden','self'] },
+  { id:'g6',  name:'ジュエリーボックス',    emoji:'💍', price:8000,  cat:'fashion',  tags:['love','birthday'],                     desc:'シルバーアクセサリー',          emotions:['love','hidden'] },
+  { id:'g7',  name:'ワインセット',          emoji:'🍷', price:5000,  cat:'drink',    tags:['work','thanks','seasonal'],            desc:'高品質ワイン2本',              emotions:['thanks','care','duty'] },
+  { id:'g8',  name:'スパセット',            emoji:'🛁', price:4000,  cat:'relax',    tags:['thanks','love'],                       desc:'アロマ&バスソルト',             emotions:['care','love','self'] },
+  { id:'g9',  name:'本のギフト',            emoji:'📚', price:1800,  cat:'culture',  tags:['work','cheer'],                        desc:'ベストセラー厳選セット',        emotions:['cheer','duty'] },
+  { id:'g10', name:'スポーツグッズ',        emoji:'⚽', price:4500,  cat:'sports',   tags:['cheer'],                               desc:'フィットネスサポート',          emotions:['cheer'] },
+  { id:'g11', name:'チョコレート',          emoji:'🍫', price:1200,  cat:'food',     tags:['love','birthday','seasonal'],          desc:'ベルギー高級チョコ',            emotions:['love','hidden','self','duty'] },
+  { id:'g12', name:'旅行券',                emoji:'✈️', price:10000, cat:'exp',      tags:['love','birthday','seasonal'],          desc:'どこでも使える旅行券',          emotions:['love','self'] },
+  { id:'g13', name:'お茶セット',            emoji:'🍵', price:2200,  cat:'drink',    tags:['thanks','work'],                       desc:'日本茶詰め合わせ',              emotions:['care','thanks','duty'] },
+  { id:'g14', name:'ゲームカード',          emoji:'🎮', price:3000,  cat:'fun',      tags:['birthday','cheer'],                    desc:'デジタルギフトカード',          emotions:['cheer','hidden','self'] },
+  { id:'g15', name:'グルメ食材',            emoji:'🥩', price:6000,  cat:'food',     tags:['work','thanks','seasonal'],            desc:'厳選和牛セット',                emotions:['thanks','duty','care'] },
+  { id:'g16', name:'フォトブック',          emoji:'📷', price:2800,  cat:'culture',  tags:['birthday','love','seasonal'],          desc:'オリジナルフォトブック作成',    emotions:['love','thanks','self'] },
+  { id:'g17', name:'メッセージキャンドル',  emoji:'🕯️', price:2500,  cat:'relax',    tags:['thanks','love'],                       desc:'アロマキャンドル＋メッセージ',  emotions:['care','love','thanks'] },
+  { id:'g18', name:'フルーツバスケット',    emoji:'🍓', price:3500,  cat:'food',     tags:['thanks','seasonal'],                   desc:'旬のフルーツ詰め合わせ',        emotions:['care','thanks','duty'] },
+  { id:'g19', name:'ハンドクリームセット',  emoji:'🧴', price:2000,  cat:'relax',    tags:['thanks','work'],                       desc:'プレミアムスキンケア3点',       emotions:['care','thanks'] },
+  { id:'g20', name:'お香セット',            emoji:'🌿', price:1800,  cat:'relax',    tags:['thanks','seasonal'],                   desc:'リラックスお香詰め合わせ',      emotions:['care','self'] },
+  { id:'g21', name:'映画チケット',          emoji:'🎬', price:3600,  cat:'exp',      tags:['love','cheer'],                        desc:'ペアシネマチケット',            emotions:['love','hidden','self'] },
+  { id:'g22', name:'ステーショナリー',      emoji:'✏️', price:2400,  cat:'culture',  tags:['cheer','work'],                        desc:'おしゃれ文具まとめ',            emotions:['cheer','duty'] },
+  { id:'g23', name:'グルメクッキー',        emoji:'🍪', price:1500,  cat:'food',     tags:['thanks','birthday'],                   desc:'手作り風焼き菓子セット',        emotions:['thanks','duty','self'] },
+  { id:'g24', name:'おしゃれポーチ',        emoji:'👜', price:4000,  cat:'fashion',  tags:['love','birthday'],                     desc:'ブランドコスメポーチ',          emotions:['love','hidden'] },
+];
+
+const EMOTIONS = [
+  { id:'cheer',  label:'応援',     emoji:'💪', sub:'Cheer' },
+  { id:'thanks', label:'感謝',     emoji:'🙏', sub:'Thanks' },
+  { id:'care',   label:'労い',     emoji:'🫶', sub:'Care' },
+  { id:'hidden', label:'下心',     emoji:'😏', sub:'Hidden' },
+  { id:'secret', label:'裏心',     emoji:'🤫', sub:'Secret' },
+  { id:'duty',   label:'義務感',   emoji:'😅', sub:'Duty' },
+  { id:'self',   label:'自己満足', emoji:'😄', sub:'For Me' },
+  { id:'other',  label:'その他',   emoji:'🎲', sub:'Other' },
+];
+
+// All defined sets (curated sets for "all sets" tab)
+const ALL_GIFT_SETS = [
+  {
+    id:'set_relax_l', label:'リラックスライトセット', price:2000, headerClass:'',
+    items:[
+      { id:'g20', name:'お香セット',           emoji:'🌿', desc:'リラックスお香',      price:1800 },
+      { id:'g9',  name:'本のギフト',           emoji:'📚', desc:'ベストセラー厳選',    price:1800 },
+      { id:'g23', name:'グルメクッキー',       emoji:'🍪', desc:'手作り風焼き菓子',    price:1500 },
+    ],
+    cat:'relax', tags:['care','thanks'], priceRange:[0,2500],
+  },
+  {
+    id:'set_sweet_m', label:'スイーツ＆ドリンクセット', price:2300, headerClass:'alt-header',
+    items:[
+      { id:'g2',  name:'スイーツセット',       emoji:'🍰', desc:'特製ケーキ',          price:2500 },
+      { id:'g4',  name:'コーヒーギフト',       emoji:'☕', desc:'プレミアムコーヒー',  price:2000 },
+      { id:'g13', name:'お茶セット',           emoji:'🍵', desc:'日本茶詰め合わせ',    price:2200 },
+    ],
+    cat:'food', tags:['thanks','duty','care'], priceRange:[0,3000],
+  },
+  {
+    id:'set_cheer_m', label:'応援エールセット', price:2700, headerClass:'',
+    items:[
+      { id:'g9',  name:'本のギフト',           emoji:'📚', desc:'ベストセラー厳選',    price:1800 },
+      { id:'g22', name:'ステーショナリー',     emoji:'✏️', desc:'おしゃれ文具',        price:2400 },
+      { id:'g3',  name:'バルーンギフト',       emoji:'🎈', desc:'カラフルバルーン',    price:1500 },
+    ],
+    cat:'fun', tags:['cheer','duty'], priceRange:[0,3000],
+  },
+  {
+    id:'set_flower_m', label:'フラワー＆スイーツセット', price:3000, headerClass:'alt-header',
+    items:[
+      { id:'g1',  name:'お花のブーケ',         emoji:'💐', desc:'色とりどり花束',      price:3000 },
+      { id:'g2',  name:'スイーツセット',       emoji:'🍰', desc:'特製ケーキ',          price:2500 },
+      { id:'g17', name:'メッセージキャンドル', emoji:'🕯️', desc:'アロマキャンドル',    price:2500 },
+    ],
+    cat:'love', tags:['love','thanks','care'], priceRange:[2500,3500],
+  },
+  {
+    id:'set_relax_m', label:'癒しのリラックスセット', price:3300, headerClass:'',
+    items:[
+      { id:'g8',  name:'スパセット',           emoji:'🛁', desc:'アロマ&バスソルト',   price:4000 },
+      { id:'g17', name:'メッセージキャンドル', emoji:'🕯️', desc:'アロマキャンドル',    price:2500 },
+      { id:'g20', name:'お香セット',           emoji:'🌿', desc:'リラックスお香',      price:1800 },
+    ],
+    cat:'relax', tags:['care','love','self'], priceRange:[2500,4500],
+  },
+  {
+    id:'set_fun_m', label:'エンタメ＆楽しいセット', price:3200, headerClass:'alt-header',
+    items:[
+      { id:'g14', name:'ゲームカード',         emoji:'🎮', desc:'デジタルギフトカード',price:3000 },
+      { id:'g21', name:'映画チケット',         emoji:'🎬', desc:'ペアシネマチケット',  price:3600 },
+      { id:'g5',  name:'ぬいぐるみ',           emoji:'🧸', desc:'ふわふわくま',        price:3500 },
+    ],
+    cat:'fun', tags:['love','hidden','self','cheer'], priceRange:[3000,4000],
+  },
+  {
+    id:'set_food_h', label:'グルメ贅沢セット', price:5000, headerClass:'',
+    items:[
+      { id:'g15', name:'グルメ食材',           emoji:'🥩', desc:'厳選和牛セット',      price:6000 },
+      { id:'g7',  name:'ワインセット',         emoji:'🍷', desc:'高品質ワイン2本',     price:5000 },
+      { id:'g18', name:'フルーツバスケット',   emoji:'🍓', desc:'旬のフルーツ詰合',    price:3500 },
+    ],
+    cat:'food', tags:['thanks','duty','care'], priceRange:[4500,6500],
+  },
+  {
+    id:'set_fashion_h', label:'ファッション＆ビューティセット', price:4500, headerClass:'alt-header',
+    items:[
+      { id:'g24', name:'おしゃれポーチ',       emoji:'👜', desc:'ブランドコスメポーチ', price:4000 },
+      { id:'g19', name:'ハンドクリームセット', emoji:'🧴', desc:'プレミアムスキンケア', price:2000 },
+      { id:'g6',  name:'ジュエリーボックス',   emoji:'💍', desc:'シルバーアクセサリー', price:8000 },
+    ],
+    cat:'fashion', tags:['love','hidden','self'], priceRange:[4000,8000],
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let activeEmotion = null;
+let selectedGiftId = null;
+let selectedIsSet = false;
+let selectedSetData = null;
+let singleCatFilter = 'all';
+let singlePriceFilter = 'all';
+let setCatFilter = 'all';
+let setPriceFilter = 'all';
+
+// ============================================================
+// PAGE TABS
+// ============================================================
+function switchPageTab(tab, el) {
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// ============================================================
+// INNER TABS (all gifts)
+// ============================================================
+function switchInnerTab(tab, el) {
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('inner-' + tab).classList.add('active');
+}
+
+// ============================================================
+// EMOTION TAB
+// ============================================================
+function renderEmotionGrid() {
+  const grid = document.getElementById('emotionGrid');
+  grid.innerHTML = EMOTIONS.map(e => `
+    <div class="emotion-card" id="em_${e.id}" onclick="selectEmotion('${e.id}')">
+      <span class="ec-emoji">${e.emoji}</span>
+      <div class="ec-label">${e.label}</div>
+      <div class="ec-sub">${e.sub}</div>
+    </div>
+  `).join('');
+}
+
+function selectEmotion(id) {
+  activeEmotion = id;
+  document.querySelectorAll('.emotion-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('em_' + id).classList.add('active');
+
+  const em = EMOTIONS.find(e => e.id === id);
+  document.getElementById('propEmotionBadge').textContent = em.emoji + ' ' + em.label;
+  document.getElementById('propSubtitle').textContent = 'の気持ちに合ったギフトを提案します';
+
+  renderProposalSingles(id);
+  renderProposalSets(id);
+
+  const area = document.getElementById('proposalArea');
+  area.style.display = 'block';
+  area.scrollIntoView({ behavior:'smooth', block:'start' });
+  showToast(em.emoji + ' ' + em.label + ' のギフトを提案します！');
+}
+
+function renderProposalSingles(emotionId) {
+  const pool = emotionId === 'other'
+    ? GIFTS
+    : GIFTS.filter(g => g.emotions && g.emotions.includes(emotionId));
+  const picks = pool.slice(0, 5);
+  const row = document.getElementById('singleGiftsRow');
+  row.innerHTML = picks.map(g => `
+    <div class="proposal-gift-card ${selectedGiftId === g.id && !selectedIsSet ? 'selected' : ''}" id="pgc_${g.id}" onclick="selectSingleGift('${g.id}', 'prop')">
+      <span class="pgc-sel-mark">✓</span>
+      <span class="pgc-emoji">${g.emoji}</span>
+      <div class="pgc-name">${g.name}</div>
+      <div class="pgc-price">¥${g.price.toLocaleString()}</div>
+      <div class="pgc-desc">${g.desc}</div>
+    </div>
+  `).join('');
+}
+
+function renderProposalSets(emotionId) {
+  const grid = document.getElementById('propSetGrid');
+  const emotionTagMap = { cheer:'cheer', thanks:'thanks', care:'care', love:'love', hidden:'love', secret:'self', duty:'duty', self:'self', other:null };
+  const tag = emotionTagMap[emotionId];
+  const pool = tag ? ALL_GIFT_SETS.filter(s => s.tags.includes(tag)) : ALL_GIFT_SETS;
+  const picks = pool.slice(0, 3);
+
+  if (picks.length === 0) {
+    grid.innerHTML = '<p style="color:#aaa;font-size:0.85rem;padding:8px 0;">この感情向けのセットは全ギフトから探してみてください。</p>';
+    return;
+  }
+  grid.innerHTML = picks.map((s, si) => renderSetCard(s, si, 'prop')).join('');
+  window._propSets = picks;
+}
+
+// ============================================================
+// SET CARD RENDERER
+// ============================================================
+function renderSetCard(s, si, prefix) {
+  return `
+    <div class="set-card ${s.headerClass || ''} ${selectedIsSet && selectedGiftId === s.id ? 'selected' : ''}" id="setcard_${prefix}_${si}">
+      <div class="set-card-header">
+        <span class="set-card-label">${s.label}</span>
+        <span class="set-card-price">¥${s.price.toLocaleString()}</span>
+      </div>
+      <div class="set-items-row">
+        ${s.items.map((item, ii) => `
+          <div class="set-item" id="si_${prefix}_${si}_${ii}" onclick="hlSetItem('${prefix}',${si},${ii})">
+            <span class="si-emoji">${item.emoji}</span>
+            <div class="si-name">${item.name}</div>
+            <div class="si-desc">${item.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="set-card-footer">
+        <span class="set-hint">受け取り手が<strong>3つから選べる</strong></span>
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:0.8rem;" onclick="selectSetGift('${s.id}','${prefix}',${si})">
+          このセットを贈る <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function hlSetItem(prefix, si, ii) {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById(`si_${prefix}_${si}_${i}`);
+    if (el) el.classList.remove('item-hl');
+  }
+  const target = document.getElementById(`si_${prefix}_${si}_${ii}`);
+  if (target) target.classList.add('item-hl');
+}
+
+// ============================================================
+// SINGLE GIFT SELECT
+// ============================================================
+function selectSingleGift(giftId, prefix) {
+  const g = GIFTS.find(x => x.id === giftId);
+  if (!g) return;
+  selectedGiftId = g.id;
+  selectedIsSet = false;
+  selectedSetData = null;
+
+  // Update visual
+  document.querySelectorAll('.proposal-gift-card, .gift-card-single').forEach(el => el.classList.remove('selected'));
+  const card = document.getElementById(`pgc_${giftId}`) || document.getElementById(`sgc_${giftId}`);
+  if (card) card.classList.add('selected');
+
+  showBanner(g.emoji, g.name, g.price, false);
+  showToast(`${g.emoji} ${g.name} を選びました！`);
+}
+
+// ============================================================
+// SET GIFT SELECT
+// ============================================================
+function selectSetGift(setId, prefix, si) {
+  const sets = prefix === 'prop' ? (window._propSets || []) : (window._allSets || ALL_GIFT_SETS);
+  const set = sets.find(s => s.id === setId) || ALL_GIFT_SETS.find(s => s.id === setId);
+  if (!set) return;
+  selectedGiftId = set.id;
+  selectedIsSet = true;
+  selectedSetData = set;
+
+  document.querySelectorAll('.set-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById(`setcard_${prefix}_${si}`);
+  if (card) card.classList.add('selected');
+
+  const emojiStr = set.items.map(i => i.emoji).join('');
+  showBanner(emojiStr, set.label, set.price, true);
+  showToast(`🎀 「${set.label}」を選びました！`);
+}
+
+// ============================================================
+// BANNER
+// ============================================================
+function showBanner(emoji, name, price, isSet) {
+  document.getElementById('selEmoji').textContent = emoji;
+  document.getElementById('selName').innerHTML = name + (isSet ? '<span class="sel-type">3択SET</span>' : '');
+  document.getElementById('selPrice').textContent = '¥' + price.toLocaleString();
+  document.getElementById('selBanner').classList.add('visible');
+  // Hide giftalk float
+  document.getElementById('giftalkFloatBtn').style.display = 'none';
+}
+
+function clearSelection() {
+  selectedGiftId = null;
+  selectedIsSet = false;
+  selectedSetData = null;
+  document.querySelectorAll('.proposal-gift-card, .gift-card-single, .set-card').forEach(el => el.classList.remove('selected'));
+  document.getElementById('selBanner').classList.remove('visible');
+  document.getElementById('giftalkFloatBtn').style.display = 'flex';
+}
+
+function goToAvatar() {
+  if (!selectedGiftId) return;
+  let giftData;
+  if (selectedIsSet && selectedSetData) {
+    giftData = {
+      id: 'set', name: selectedSetData.label,
+      emoji: selectedSetData.items.map(i => i.emoji).join(''),
+      price: selectedSetData.price,
+      isSet: true, setItems: selectedSetData.items,
+    };
+  } else {
+    giftData = GIFTS.find(x => x.id === selectedGiftId);
+  }
+  sessionStorage.setItem('selectedGift', JSON.stringify(giftData));
+  window.location.href = 'avatar.html';
+}
+
+// ============================================================
+// ALL GIFTS TAB — SINGLE
+// ============================================================
+const CAT_LABELS = { all:'🌟 すべて', food:'🍰 グルメ', drink:'☕ ドリンク', relax:'🛁 リラックス', love:'💕 ラブ', fun:'🎉 楽しい', culture:'📚 カルチャー', sports:'⚽ スポーツ', fashion:'👗 ファッション', exp:'✈️ 体験' };
+const PRICE_LABELS = { all:'💴 すべて', 2000:'〜¥2,000', 3000:'〜¥3,000', 5000:'〜¥5,000', 10000:'〜¥10,000' };
+const SET_CAT_LABELS = { all:'🌟 すべて', food:'🍰 グルメ', relax:'🛁 リラックス', love:'💕 ラブ', fun:'🎉 楽しい', fashion:'👗 ファッション' };
+
+function buildFilterRows() {
+  // Single cat
+  const scr = document.getElementById('singleCatRow');
+  scr.innerHTML = Object.entries(CAT_LABELS).map(([k,v]) => `
+    <button class="filter-chip ${k==='all'?'active':''}" data-cat="${k}" onclick="setSingleCat('${k}',this)">${v}</button>
+  `).join('');
+  // Single price
+  const spr = document.getElementById('singlePriceRow');
+  spr.innerHTML = Object.entries(PRICE_LABELS).map(([k,v]) => `
+    <button class="price-chip ${k==='all'?'active':''}" data-price="${k}" onclick="setSinglePrice('${k}',this)">${v}</button>
+  `).join('');
+  // Set cat
+  const scr2 = document.getElementById('setCatRow');
+  scr2.innerHTML = Object.entries(SET_CAT_LABELS).map(([k,v]) => `
+    <button class="filter-chip ${k==='all'?'active':''}" data-cat="${k}" onclick="setSetCat('${k}',this)">${v}</button>
+  `).join('');
+  // Set price
+  const spr2 = document.getElementById('setPriceRow');
+  spr2.innerHTML = Object.entries(PRICE_LABELS).map(([k,v]) => `
+    <button class="price-chip ${k==='all'?'active':''}" data-price="${k}" onclick="setSetPrice('${k}',this)">${v}</button>
+  `).join('');
+}
+
+function setSingleCat(v, el) {
+  singleCatFilter = v;
+  document.querySelectorAll('#singleCatRow .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSingleGifts();
+}
+function setSinglePrice(v, el) {
+  singlePriceFilter = v;
+  document.querySelectorAll('#singlePriceRow .price-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSingleGifts();
+}
+function setSetCat(v, el) {
+  setCatFilter = v;
+  document.querySelectorAll('#setCatRow .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderAllSets();
+}
+function setSetPrice(v, el) {
+  setPriceFilter = v;
+  document.querySelectorAll('#setPriceRow .price-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderAllSets();
+}
+
+function renderSingleGifts() {
+  const q = (document.getElementById('singleSearch').value || '').toLowerCase();
+  const filtered = GIFTS.filter(g => {
+    const matchCat = singleCatFilter === 'all' || g.cat === singleCatFilter;
+    const matchPrice = singlePriceFilter === 'all' || g.price <= parseInt(singlePriceFilter);
+    const matchQ = !q || g.name.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q);
+    return matchCat && matchPrice && matchQ;
+  });
+  const grid = document.getElementById('singleGrid');
+  const empty = document.getElementById('singleEmpty');
+  if (filtered.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(g => `
+    <div class="gift-card ${selectedGiftId === g.id && !selectedIsSet ? 'selected' : ''}" id="sgc_${g.id}" onclick="selectSingleGift('${g.id}','all')">
+      <span class="gift-emoji">${g.emoji}</span>
+      <div class="gift-name">${g.name}</div>
+      <div class="gift-price">¥${g.price.toLocaleString()}</div>
+      <div class="gift-desc">${g.desc}</div>
+    </div>
+  `).join('');
+}
+
+function renderAllSets() {
+  const filtered = ALL_GIFT_SETS.filter(s => {
+    const matchCat = setCatFilter === 'all' || s.cat === setCatFilter;
+    const maxPrice = setPriceFilter === 'all' ? Infinity : parseInt(setPriceFilter);
+    const matchPrice = s.price <= maxPrice;
+    return matchCat && matchPrice;
+  });
+  window._allSets = filtered;
+  const grid = document.getElementById('setsGrid');
+  const empty = document.getElementById('setsEmpty');
+  if (filtered.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map((s, si) => renderSetCard(s, si, 'all')).join('');
+}
+
+// ============================================================
+// TOAST / PARTICLES / INIT
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function initParticles() {
+  const c = document.getElementById('particles');
+  const emojis = ['🎁','💝','⭐','✨','🌟','💫','🎀','🌸'];
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+    c.appendChild(p);
+  }
+}
+
+// Check URL param for pre-selected emotion
+function checkUrlParams() {
+  const params = new URLSearchParams(location.search);
+  const em = params.get('emotion');
+  if (em && EMOTIONS.find(e => e.id === em)) {
+    selectEmotion(em);
+  }
+}
+
+// Init
+initParticles();
+renderEmotionGrid();
+buildFilterRows();
+renderSingleGifts();
+renderAllSets();
+checkUrlParams();
+window._allSets = ALL_GIFT_SETS;
+</script>
+</body>
+</html>

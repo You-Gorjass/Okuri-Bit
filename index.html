@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Okuri-Bit — 気持ちを、ギフトに変えよう</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    /* ===== Reset / Base ===== */
+    html { scroll-behavior: smooth; }
+    body { background: #0f0c29; overflow-x: hidden; }
+
+    /* ===== Header ===== */
+    .lp-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15,12,41,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.3s;
+    }
+    .lp-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .lp-logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .lp-logo-text {
+      font-size: 1.35rem; font-weight: 900;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .lp-nav {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .lp-nav-link {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.2s;
+    }
+    .lp-nav-link:hover { color: white; border-color: rgba(255,255,255,0.4); }
+    .lp-nav-cta {
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 9px 22px;
+      border-radius: 50px;
+      box-shadow: 0 4px 16px rgba(255,107,157,0.35);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .lp-nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,157,0.5); }
+
+    /* ===== HERO ===== */
+    .hero-section {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #0f0c29 0%, #1a1040 40%, #302b63 80%, #24243e 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 30% 40%, rgba(168,85,247,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 70% 60%, rgba(255,107,157,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,107,157,0.12);
+      border: 1px solid rgba(255,107,157,0.35);
+      color: #FF6B9D;
+      padding: 7px 20px; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 800;
+      margin-bottom: 28px;
+      position: relative; z-index: 1;
+      animation: fadeInDown 0.8s ease forwards;
+    }
+    .hero-h1 {
+      font-size: clamp(2.6rem, 8vw, 5.2rem);
+      font-weight: 900; color: white;
+      line-height: 1.1; margin-bottom: 22px;
+      position: relative; z-index: 1;
+      animation: fadeInUp 0.9s 0.15s ease both;
+    }
+    .hero-h1 .grad {
+      background: linear-gradient(135deg, #FF6B9D 0%, #A855F7 50%, #60a5fa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      color: rgba(255,255,255,0.7);
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      max-width: 560px; margin: 0 auto 44px;
+      line-height: 1.8;
+      position: relative; z-index: 1;
+      animation: fadeInUp 1s 0.3s ease both;
+    }
+    .hero-cta-group {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+      position: relative; z-index: 1;
+      margin-bottom: 70px;
+      animation: fadeInUp 1s 0.45s ease both;
+    }
+    .hero-btn-primary {
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white; padding: 18px 48px; border-radius: 50px;
+      font-size: 1.1rem; font-weight: 800;
+      border: none; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 9px;
+      box-shadow: 0 8px 32px rgba(255,107,157,0.45);
+      transition: all 0.25s;
+    }
+    .hero-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 44px rgba(255,107,157,0.6); }
+    .hero-btn-ghost {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.9);
+      padding: 17px 36px; border-radius: 50px;
+      font-size: 1rem; font-weight: 700;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all 0.25s;
+      backdrop-filter: blur(8px);
+    }
+    .hero-btn-ghost:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.5); }
+
+    /* Floating emotion bubbles */
+    .emotion-bubbles {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      position: relative; z-index: 1;
+      animation: fadeInUp 1s 0.6s ease both;
+    }
+    .em-bubble {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; padding: 14px 18px;
+      text-align: center; min-width: 100px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+    .em-bubble:hover { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.4); transform: translateY(-6px); cursor: pointer; }
+    .em-bubble .eb-emoji { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+    .em-bubble .eb-label { color: rgba(255,255,255,0.8); font-size: 0.78rem; font-weight: 700; }
+    .em-bubble:nth-child(1) { animation: float1 3.2s ease-in-out infinite; }
+    .em-bubble:nth-child(2) { animation: float1 3.2s 0.4s ease-in-out infinite; }
+    .em-bubble:nth-child(3) { animation: float1 3.2s 0.8s ease-in-out infinite; }
+    .em-bubble:nth-child(4) { animation: float1 3.2s 1.2s ease-in-out infinite; }
+    .em-bubble:nth-child(5) { animation: float1 3.2s 1.6s ease-in-out infinite; }
+    @keyframes float1 { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-9px);} }
+
+    /* Scroll arrow */
+    .scroll-arrow {
+      position: absolute; bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.35); font-size: 1.5rem;
+      animation: arrowBounce 1.6s ease-in-out infinite;
+      z-index: 1;
+    }
+    @keyframes arrowBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(8px);} }
+
+    /* ===== FEATURES ===== */
+    .features-section {
+      background: white;
+      padding: 100px 24px;
+    }
+    .lp-container { max-width: 1100px; margin: 0 auto; }
+    .section-head {
+      text-align: center; margin-bottom: 60px;
+    }
+    .section-eyebrow {
+      display: inline-block;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 0.82rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900; color: #1a1a2e; line-height: 1.3;
+    }
+    .section-desc { color: #888; margin-top: 12px; font-size: 1.02rem; line-height: 1.7; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: linear-gradient(145deg, #FFF5F8 0%, #F8F0FF 100%);
+      border: 1px solid rgba(168,85,247,0.1);
+      border-radius: 24px; padding: 32px 28px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(168,85,247,0.14); }
+    .feature-card:hover::after { transform: scaleX(1); }
+    .feat-icon { font-size: 2.2rem; margin-bottom: 16px; display: block; }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 800; color: #1a1a2e; margin-bottom: 10px; }
+    .feature-card p { color: #777; font-size: 0.88rem; line-height: 1.7; }
+    .feat-new-badge {
+      display: inline-block;
+      background: linear-gradient(135deg,#FF6B9D,#A855F7);
+      color: white; font-size: 0.65rem; font-weight: 800;
+      padding: 2px 8px; border-radius: 8px; margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ===== PROBLEMS ===== */
+    .problems-section {
+      background: linear-gradient(160deg, #0f0c29 0%, #302b63 100%);
+      padding: 100px 24px;
+    }
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 18px;
+      margin-bottom: 48px;
+    }
+    .prob-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px; padding: 24px 22px;
+      display: flex; gap: 14px; align-items: flex-start;
+      color: white; transition: all 0.25s;
+    }
+    .prob-card:hover { background: rgba(255,255,255,0.09); transform: translateX(4px); }
+    .prob-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .prob-card h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 5px; }
+    .prob-card p { font-size: 0.82rem; opacity: 0.65; line-height: 1.6; }
+
+    .solution-banner {
+      background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(168,85,247,0.2));
+      border: 1px solid rgba(168,85,247,0.35);
+      border-radius: 28px; padding: 48px 36px; text-align: center;
+    }
+    .solution-banner h3 {
+      font-size: clamp(1.4rem,3vw,2rem);
+      font-weight: 900; color: white; margin-bottom: 14px;
+    }
+    .solution-banner p { color: rgba(255,255,255,0.75); font-size: 1rem; line-height: 1.8; }
+
+    /* ===== HOW IT WORKS ===== */
+    .flow-section { background: #FAFAFA; padding: 100px 24px; }
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0; position: relative;
+    }
+    .flow-step { text-align: center; padding: 20px 18px; position: relative; }
+    .flow-step:not(:last-child)::after {
+      content: '→';
+      position: absolute; right: -6px; top: 34px;
+      font-size: 1.4rem; color: #ccc;
+    }
+    .flow-num {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white; border-radius: 50%;
+      font-size: 1.3rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+      box-shadow: 0 6px 20px rgba(255,107,157,0.35);
+    }
+    .flow-emoji { font-size: 2rem; margin-bottom: 10px; display: block; }
+    .flow-step h4 { font-size: 0.95rem; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+    .flow-step p { font-size: 0.8rem; color: #888; line-height: 1.6; }
+
+    /* ===== VOICE CARDS (testimonials style) ===== */
+    .voice-section { background: white; padding: 100px 24px; }
+    .voice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .voice-card {
+      background: linear-gradient(145deg, #F8F0FF, #FFF0F8);
+      border-radius: 22px; padding: 28px 24px;
+      border: 1px solid rgba(168,85,247,0.1);
+      transition: all 0.25s;
+    }
+    .voice-card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(168,85,247,0.14); }
+    .voice-stars { color: #FFD700; font-size: 0.9rem; margin-bottom: 12px; }
+    .voice-text { font-size: 0.9rem; color: #444; line-height: 1.75; margin-bottom: 16px; }
+    .voice-author { display: flex; align-items: center; gap: 10px; }
+    .voice-avatar { font-size: 1.6rem; width: 38px; height: 38px; background: linear-gradient(135deg,#F3E8FF,#FFE4F5); border-radius: 50%; display:flex; align-items:center; justify-content:center; }
+    .voice-name { font-size: 0.82rem; font-weight: 800; color: #333; }
+    .voice-sub { font-size: 0.72rem; color: #aaa; }
+
+    /* ===== FINAL CTA ===== */
+    .final-cta {
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      padding: 100px 24px; text-align: center;
+    }
+    .final-cta h2 {
+      font-size: clamp(1.8rem,5vw,3rem);
+      font-weight: 900; color: white; margin-bottom: 14px;
+    }
+    .final-cta p { color: rgba(255,255,255,0.85); font-size: 1.05rem; margin-bottom: 40px; line-height: 1.7; }
+    .final-cta-btns {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    }
+    .fcta-white {
+      background: white; color: #A855F7;
+      padding: 17px 44px; border-radius: 50px;
+      font-size: 1.05rem; font-weight: 800;
+      border: none; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transition: all 0.25s;
+    }
+    .fcta-white:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0,0,0,0.2); }
+    .fcta-outline {
+      background: transparent; color: white;
+      padding: 16px 36px; border-radius: 50px;
+      font-size: 0.98rem; font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.65);
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all 0.25s;
+    }
+    .fcta-outline:hover { background: rgba(255,255,255,0.15); border-color: white; }
+
+    /* ===== Footer ===== */
+    .lp-footer {
+      background: #0a0815;
+      padding: 40px 24px;
+      text-align: center;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.82rem;
+    }
+    .lp-footer a { color: rgba(255,255,255,0.5); text-decoration: none; margin: 0 10px; }
+    .lp-footer a:hover { color: white; }
+
+    /* Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Demo Modal ===== */
+    #demoModal {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    #demoModal.open { display: flex; }
+
+    .demo-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(5, 0, 20, 0.88);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+
+    .demo-panel {
+      position: relative; z-index: 2;
+      width: min(420px, 94vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: linear-gradient(170deg, #1a0030 0%, #0d001a 60%, #000510 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 32px;
+      box-shadow: 0 32px 80px rgba(168,85,247,0.3), 0 0 0 1px rgba(255,107,157,0.12);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 0 32px;
+      animation: modalPop 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes modalPop {
+      from { opacity:0; transform: scale(0.75) translateY(30px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+
+    .demo-close {
+      position: absolute; top: 14px; right: 16px;
+      background: rgba(255,255,255,0.1); border: none;
+      color: rgba(255,255,255,0.7); font-size: 1.1rem;
+      width: 34px; height: 34px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; z-index: 3;
+    }
+    .demo-close:hover { background: rgba(255,255,255,0.2); color: white; }
+
+    /* Demo: stage top area */
+    .demo-stage {
+      width: 100%;
+      background: radial-gradient(ellipse at top, rgba(168,85,247,0.3) 0%, transparent 65%);
+      padding: 36px 24px 20px;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+
+    .demo-star-field {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 32px 32px 0 0;
+    }
+    .demo-star {
+      position: absolute; background: white; border-radius: 50%;
+      animation: demoTwinkle linear infinite;
+    }
+    @keyframes demoTwinkle {
+      0%,100%{ opacity:0.1; transform:scale(0.8); }
+      50%    { opacity:0.9; transform:scale(1.2); }
+    }
+
+    .demo-to-from {
+      text-align: center; margin-bottom: 16px; z-index: 2; position: relative;
+    }
+    .demo-to-text {
+      font-size: 0.7rem; color: rgba(255,255,255,0.4);
+      font-weight: 700; letter-spacing: 2px; margin-bottom: 4px;
+    }
+    .demo-from-name {
+      font-size: 1.05rem; font-weight: 900; color: white;
+    }
+    .demo-highlight {
+      background: linear-gradient(90deg,#FF6B9D,#A855F7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .demo-avatar-wrap {
+      position: relative; z-index: 2; margin-bottom: 4px;
+    }
+    .demo-avatar-glow {
+      position: absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,107,157,0.3) 0%, transparent 70%);
+      animation: demoGlow 2.2s ease-in-out infinite;
+    }
+    @keyframes demoGlow {
+      0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:0.8; }
+      50%    { transform:translate(-50%,-50%) scale(1.2); opacity:0.4; }
+    }
+    #demoAvatarCanvas {
+      position: relative; z-index: 2;
+      filter: drop-shadow(0 0 16px rgba(255,107,157,0.4));
+    }
+
+    .demo-avatar-label {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white; padding: 5px 16px; border-radius: 50px;
+      font-size: 0.75rem; font-weight: 700;
+      margin-top: -4px; z-index: 2; position: relative;
+    }
+
+    .demo-speech {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px; padding: 14px 20px;
+      max-width: 300px; margin: 14px auto 0;
+      font-size: 0.88rem; line-height: 1.65; color: #2D2D2D;
+      font-weight: 600; z-index: 2; position: relative;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      animation: fadeScaleIn 0.5s 0.3s ease both;
+    }
+    .demo-speech::before {
+      content: '';
+      position: absolute; top: -12px; left: 50%;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-bottom-color: rgba(255,255,255,0.95);
+    }
+    @keyframes fadeScaleIn {
+      from { opacity:0; transform: scale(0.88); }
+      to   { opacity:1; transform: scale(1); }
+    }
+
+    /* Demo gift cards */
+    .demo-gift-area {
+      width: 100%; padding: 0 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+
+    /* Single gift card */
+    .demo-gift-card {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 22px; padding: 22px 20px;
+      text-align: center;
+      animation: fadeScaleIn 0.6s 0.5s ease both;
+    }
+    .demo-gift-emoji {
+      font-size: 3.6rem; display: block; margin-bottom: 8px;
+      animation: demoBounce 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 3px 10px rgba(255,215,0,0.4));
+    }
+    @keyframes demoBounce {
+      0%,100%{ transform:translateY(0); }
+      50%    { transform:translateY(-10px); }
+    }
+    .demo-gift-name {
+      font-size: 1.15rem; font-weight: 900; color: white; margin-bottom: 4px;
+    }
+    .demo-gift-price {
+      font-size: 0.88rem; font-weight: 700;
+      background: linear-gradient(90deg,#FFD700,#FF8C42);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 3-choice set cards */
+    .demo-set-label {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 2px;
+      text-align: center; text-transform: uppercase;
+    }
+    .demo-set-title {
+      font-size: 0.95rem; font-weight: 900; color: white;
+      text-align: center; margin-bottom: 12px;
+    }
+    .demo-set-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+      width: 100%;
+    }
+    .demo-set-card {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 14px 6px;
+      text-align: center; cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      position: relative;
+    }
+    .demo-set-card:hover {
+      border-color: rgba(255,107,157,0.5);
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 10px 28px rgba(255,107,157,0.22);
+      background: rgba(255,107,157,0.1);
+    }
+    .demo-set-card.chosen {
+      border-color: #FF6B9D;
+      background: rgba(255,107,157,0.18);
+      transform: translateY(-6px) scale(1.07);
+      box-shadow: 0 14px 36px rgba(255,107,157,0.38);
+    }
+    .demo-set-card.dimmed {
+      opacity: 0.35; transform: scale(0.95); pointer-events: none;
+    }
+    .demo-set-badge {
+      position: absolute; top:7px; right:7px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg,#FF6B9D,#A855F7);
+      color: white; font-size: 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .demo-set-card.chosen .demo-set-badge { opacity:1; transform:scale(1); }
+    .demo-set-emoji { font-size: 2rem; }
+    .demo-set-name {
+      font-size: 0.7rem; font-weight: 800; color: white; line-height: 1.3;
+    }
+    .demo-set-price {
+      font-size: 0.65rem; font-weight: 700;
+      background: linear-gradient(90deg,#FFD700,#FF8C42);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .demo-decide-btn {
+      width: 100%; padding: 14px;
+      border-radius: 50px;
+      background: linear-gradient(135deg,#FF6B9D,#A855F7);
+      color: white; font-size: 0.9rem; font-weight: 800;
+      border: none; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255,107,157,0.4);
+      transition: all 0.25s; font-family: inherit;
+      opacity: 0.4; pointer-events: none;
+    }
+    .demo-decide-btn.ready { opacity:1; pointer-events:auto; }
+    .demo-decide-btn.ready:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,107,157,0.55); }
+
+    /* Result after choosing */
+    .demo-chosen-result {
+      display: none; width: 100%;
+      text-align: center;
+      animation: fadeScaleIn 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .demo-chosen-result.show { display: block; }
+
+    /* Reaction row */
+    .demo-reaction-row {
+      display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+      padding: 0 20px;
+    }
+    .demo-react-btn {
+      width: 50px; height: 50px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07);
+      font-size: 1.5rem; cursor: pointer;
+      transition: all 0.22s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .demo-react-btn:hover, .demo-react-btn.sel {
+      transform: scale(1.22);
+      border-color: #FF6B9D;
+      background: rgba(255,107,157,0.2);
+      box-shadow: 0 0 16px rgba(255,107,157,0.35);
+    }
+    .demo-react-sent {
+      display:none; text-align:center; padding: 16px;
+      animation: fadeScaleIn 0.5s ease both;
+    }
+    .demo-react-sent.show { display:block; }
+
+    /* Open demo CTA */
+    .demo-cta-row {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      padding: 0 20px;
+    }
+    .demo-go-btn {
+      width: 100%; padding: 15px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white; font-size: 0.95rem; font-weight: 800;
+      text-decoration: none; text-align: center;
+      box-shadow: 0 6px 20px rgba(255,107,157,0.4);
+      transition: all 0.25s; display: block;
+    }
+    .demo-go-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,107,157,0.55); }
+
+    /* Selector dots (demo switcher) */
+    .demo-switcher {
+      display: flex; gap: 8px; justify-content: center;
+      padding: 14px 0 0;
+    }
+    .demo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer; transition: all 0.25s;
+    }
+    .demo-dot.active { background: #FF6B9D; transform: scale(1.3); }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .lp-header { padding: 14px 18px; }
+      .lp-nav-link { display: none; }
+      .flow-step:not(:last-child)::after { display: none; }
+      .flow-grid { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<header class="lp-header" id="lpHeader">
+  <a href="index.html" class="lp-logo">
+    <div class="lp-logo-icon">🎁</div>
+    <span class="lp-logo-text">Okuri-Bit</span>
+  </a>
+  <nav class="lp-nav">
+    <a href="community.html" class="lp-nav-link"><i class="fas fa-users"></i> みんなの投稿</a>
+    <a href="giftalk.html" class="lp-nav-link"><i class="fas fa-robot"></i> Giftalk</a>
+    <a href="avatars.html" class="lp-nav-link"><i class="fas fa-user-circle"></i> アバター管理</a>
+    <a href="gift.html" class="lp-nav-cta"><i class="fas fa-gift"></i> ギフトを贈る</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-eyebrow">✨ 感情から始まる、まったく新しいギフト体験</div>
+  <h1 class="hero-h1">気持ちを、<br><span class="grad">ギフトに変えよう</span></h1>
+  <p class="hero-sub">「応援したい」「ありがとうを伝えたい」<br>どんな感情も、最高の贈り物に変えます。</p>
+
+  <div class="hero-cta-group">
+    <a href="gift.html" class="hero-btn-primary">
+      <i class="fas fa-gift"></i> ギフトを贈る
+    </a>
+    <button class="hero-btn-ghost" onclick="openDemoModal()">
+      <i class="fas fa-eye"></i> もらった画面を見る
+    </button>
+    <a href="giftalk.html" class="hero-btn-ghost">
+      <i class="fas fa-robot"></i> AIに相談する
+    </a>
+    <a href="avatars.html" class="hero-btn-ghost">
+      <i class="fas fa-user-circle"></i> アバターを管理する
+    </a>
+  </div>
+
+  <div class="emotion-bubbles">
+    <div class="em-bubble" onclick="location.href='gift.html?emotion=cheer'">
+      <span class="eb-emoji">💪</span><span class="eb-label">応援</span>
+    </div>
+    <div class="em-bubble" onclick="location.href='gift.html?emotion=thanks'">
+      <span class="eb-emoji">🙏</span><span class="eb-label">感謝</span>
+    </div>
+    <div class="em-bubble" onclick="location.href='gift.html?emotion=care'">
+      <span class="eb-emoji">🫶</span><span class="eb-label">労い</span>
+    </div>
+    <div class="em-bubble" onclick="location.href='gift.html?emotion=love'">
+      <span class="eb-emoji">💕</span><span class="eb-label">愛情</span>
+    </div>
+    <div class="em-bubble" onclick="location.href='gift.html?emotion=hidden'">
+      <span class="eb-emoji">😏</span><span class="eb-label">下心</span>
+    </div>
+  </div>
+
+  <div class="scroll-arrow"><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="lp-container">
+    <div class="section-head">
+      <div class="section-eyebrow">What's Okuri-Bit?</div>
+      <h2 class="section-h2">他のギフトサービスと、<br>ここが違います</h2>
+      <p class="section-desc">感情起点のギフト選び・アバター演出・受け取り手の選択権。<br>体験ごと贈れる次世代ギフトサービスです。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feat-icon">💭</span>
+        <h3>感情から選べるギフト</h3>
+        <p>「応援」「感謝」「労い」「下心」など、今の気持ちを選ぶだけ。その感情にぴったりのギフトを自動提案します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🎁</span>
+        <h3>3択ギフトで相手が選ぶ <span class="feat-new-badge">NEW</span></h3>
+        <p>同じ価格帯の3つのギフトを1セットで贈れます。受け取り手が自分で選ぶ喜びをプレゼント。</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🎭</span>
+        <h3>アバター演出で気持ちを届ける</h3>
+        <p>自分だけのアバターを作成。モーション・表情付きで、文字以上の感情を相手に届けられます。</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🤖</span>
+        <h3>Giftalkでアドバイス <span class="feat-new-badge">NEW</span></h3>
+        <p>何を贈るか迷ったらAIとチャット。相手・状況・予算を話すだけでぴったりのギフトを提案します。</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">📸</span>
+        <h3>もらった体験を投稿 <span class="feat-new-badge">NEW</span></h3>
+        <p>受け取り手がギフト体験をSNSに投稿。みんなのハッピーな瞬間が集まるコミュニティです。</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">⚡</span>
+        <h3>最短3分で贈れる</h3>
+        <p>感情選択 → ギフト → アバター → 送信まで、シンプルなステップで完結します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="problems-section">
+  <div class="lp-container">
+    <div class="section-head">
+      <div class="section-eyebrow" style="color:#A855F7; -webkit-text-fill-color: #A855F7;">こんなお悩みありませんか？</div>
+      <h2 class="section-h2" style="color:white;">ギフト選びの<br><span style="background:linear-gradient(135deg,#FF6B9D,#A855F7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">あるある困りごと</span></h2>
+    </div>
+    <div class="problems-grid">
+      <div class="prob-card">
+        <span class="prob-icon">😰</span>
+        <div>
+          <h4>何を贈ればいいかわからない</h4>
+          <p>選択肢が多すぎて迷子に。時間だけが過ぎていく…</p>
+        </div>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">😬</span>
+        <div>
+          <h4>相手の好みがわからない</h4>
+          <p>せっかく選んでも喜んでもらえるか不安。</p>
+        </div>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">😓</span>
+        <div>
+          <h4>気持ちをうまく伝えられない</h4>
+          <p>感謝や応援の気持ちをどう表現すればいいか…</p>
+        </div>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">🤷</span>
+        <div>
+          <h4>贈った後の反応がわからない</h4>
+          <p>届いたかどうか、喜んでもらえたか気になる。</p>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:2.4rem; margin: 36px 0; opacity:0.7;">↓</div>
+    <div class="solution-banner">
+      <h3>✨ Okuri-Bitなら全部解決！</h3>
+      <p>感情を選ぶだけでギフト提案・AIが相談に乗る・受け取り手が3択から選べる<br>アバターで気持ちを演出・リアクションまで確認できる。</p>
+    </div>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="flow-section">
+  <div class="lp-container">
+    <div class="section-head">
+      <div class="section-eyebrow">How it works</div>
+      <h2 class="section-h2">たった4ステップで<br>ギフトが完成</h2>
+    </div>
+    <div class="flow-grid">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <span class="flow-emoji">💭</span>
+        <h4>気持ちを選ぶ</h4>
+        <p>応援・感謝・労いなど今の感情をタップ</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <span class="flow-emoji">🎁</span>
+        <h4>ギフトを選ぶ</h4>
+        <p>単品または3択セットから選択</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <span class="flow-emoji">🎭</span>
+        <h4>アバターを作る</h4>
+        <p>あなたらしいアバターとメッセージを添える</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <span class="flow-emoji">📲</span>
+        <h4>URLを共有する</h4>
+        <p>LINEで送るだけ。相手がリアクションを返してくれる！</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICES -->
+<section class="voice-section">
+  <div class="lp-container">
+    <div class="section-head">
+      <div class="section-eyebrow">User Voices</div>
+      <h2 class="section-h2">みんなの体験談</h2>
+    </div>
+    <div class="voice-grid">
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">「応援」を選んだら、友人へのピッタリなギフトをすぐ提案してくれた！アバター演出に相手も感動してた😭</p>
+        <div class="voice-author">
+          <div class="voice-avatar">🌸</div>
+          <div><div class="voice-name">はなこさん（20代・女性）</div><div class="voice-sub">友人への応援ギフト</div></div>
+        </div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">3択セットで贈ったら「選ぶの楽しかった！」って言われた。相手に選ばせるって新しい発想でいいですね。</p>
+        <div class="voice-author">
+          <div class="voice-avatar">🎸</div>
+          <div><div class="voice-name">けんたさん（30代・男性）</div><div class="voice-sub">退職祝いに3択セット</div></div>
+        </div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-stars">★★★★★</div>
+        <p class="voice-text">Giftalkに相談したら、考えもしなかったギフトを提案してくれた。何聞いても答えてくれるのが助かる！</p>
+        <div class="voice-author">
+          <div class="voice-avatar">🌙</div>
+          <div><div class="voice-name">ゆいさん（20代・女性）</div><div class="voice-sub">Giftalkで相談</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:36px;">
+      <a href="community.html" style="color:#A855F7; font-weight:800; font-size:0.95rem; text-decoration:none;">
+        みんなのギフト体験をもっと見る <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="lp-container">
+    <h2>さあ、気持ちをギフトに変えよう ✨</h2>
+    <p>誰かに贈りたい気持ち、Okuri-Bitが最高の形にします</p>
+    <div class="final-cta-btns">
+      <a href="gift.html" class="fcta-white">
+        <i class="fas fa-gift"></i> ギフトを贈る
+      </a>
+      <button class="fcta-outline" style="cursor:pointer;" onclick="openDemoModal()">
+        <i class="fas fa-eye"></i> もらった画面を見る
+      </button>
+      <a href="community.html" class="fcta-outline">
+        <i class="fas fa-users"></i> みんなの投稿を見る
+      </a>
+      <a href="giftalk.html" class="fcta-outline">
+        <i class="fas fa-robot"></i> AIに相談する
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="lp-footer">
+  <div style="margin-bottom:14px;">
+    <a href="gift.html">ギフトを贈る</a>
+    <a href="community.html">みんなの投稿</a>
+    <a href="giftalk.html">Giftalk</a>
+    <a href="avatars.html">アバター管理</a>
+    <a href="reactions.html">リアクション確認</a>
+  </div>
+  <div>© 2026 Okuri-Bit — 気持ちを、ギフトに変えよう</div>
+</footer>
+
+<!-- ===== Demo Modal ===== -->
+<div id="demoModal" role="dialog" aria-modal="true" aria-label="もらった画面のデモ">
+  <div class="demo-backdrop" onclick="closeDemoModal()"></div>
+  <div class="demo-panel" id="demoPanelInner">
+    <button class="demo-close" onclick="closeDemoModal()" aria-label="閉じる"><i class="fas fa-times"></i></button>
+
+    <!-- Stage: avatar + speech -->
+    <div class="demo-stage">
+      <div class="demo-star-field" id="demoStarField"></div>
+
+      <!-- switcher dots -->
+      <div class="demo-switcher">
+        <div class="demo-dot active" id="dot0" onclick="switchDemo(0)" title="単品ギフトの例"></div>
+        <div class="demo-dot" id="dot1" onclick="switchDemo(1)" title="3択セットの例"></div>
+      </div>
+
+      <!-- to / from -->
+      <div class="demo-to-from">
+        <div class="demo-to-text">✦ GIFT FOR YOU ✦</div>
+        <div class="demo-from-name">
+          <span class="demo-highlight" id="demoRecipient">あなた</span>さんへ
+        </div>
+        <div style="color:rgba(255,255,255,0.35); font-size:0.75rem; margin-top:3px;">
+          from <span id="demoSender" style="color:rgba(255,255,255,0.65); font-weight:700;">まこと</span>
+        </div>
+      </div>
+
+      <!-- Avatar -->
+      <div class="demo-avatar-wrap">
+        <div class="demo-avatar-glow"></div>
+        <canvas id="demoAvatarCanvas" width="180" height="180"></canvas>
+      </div>
+      <div class="demo-avatar-label" id="demoAvatarLabel">🌟 コトネ</div>
+
+      <!-- Speech bubble -->
+      <div class="demo-speech" id="demoSpeech">
+        いつも応援してるよ！💪<br>小さな気持ちだけど受け取ってね🎁
+      </div>
+    </div>
+
+    <!-- Gift area (JS controlled) -->
+    <div class="demo-gift-area" id="demoGiftArea">
+      <!-- JS で描画 -->
+    </div>
+
+    <!-- Reaction row -->
+    <div class="demo-reaction-row" id="demoReactionRow" style="display:none;">
+      <button class="demo-react-btn" onclick="demoReact('🥰',this)">🥰</button>
+      <button class="demo-react-btn" onclick="demoReact('😭',this)">😭</button>
+      <button class="demo-react-btn" onclick="demoReact('🙏',this)">🙏</button>
+      <button class="demo-react-btn" onclick="demoReact('😍',this)">😍</button>
+      <button class="demo-react-btn" onclick="demoReact('🎉',this)">🎉</button>
+      <button class="demo-react-btn" onclick="demoReact('💖',this)">💖</button>
+    </div>
+
+    <!-- Reaction sent state -->
+    <div class="demo-react-sent" id="demoReactSent">
+      <div style="font-size:2.4rem; margin-bottom:8px;" id="demoSentIcon">💖</div>
+      <div style="font-weight:800; color:white; font-size:0.95rem; margin-bottom:4px;">リアクションを送りました！</div>
+      <div style="color:rgba(255,255,255,0.5); font-size:0.78rem;">送り手に届きます ✨</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="demo-cta-row" id="demoCta">
+      <a href="gift.html" class="demo-go-btn">
+        <i class="fas fa-gift"></i> 実際に贈ってみる
+      </a>
+      <a id="demoFullLink" href="receive.html?demo=1" style="color:rgba(255,255,255,0.4); font-size:0.78rem; text-decoration:none;">
+        フルバージョンを見る <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Particles (subtle) -->
+<div id="lpParticles" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;"></div>
+
+<script>
+// ===== Demo Modal =====
+
+// Demo scenarios
+const DEMO_SCENARIOS = [
+  {
+    // Scenario 0: Single gift
+    sender: 'まこと',
+    recipient: 'あなた',
+    avatarLabel: '🌟 コトネ',
+    speech: 'いつも応援してるよ！💪\nちょっとしたプレゼントだけど受け取ってね🎁',
+    avatar: { faceColor:'#FFDABB', hairStyle:'long', hairColor:'#3D2B1F', eyeStyle:'normal', accessory:'ribbon', outfit:'dress', expression:'cheer', motion:'bounce' },
+    isSet: false,
+    gift: { emoji:'🌸', name:'アロマキャンドルセット', price: 2800 }
+  },
+  {
+    // Scenario 1: 3-choice set
+    sender: 'ゆい',
+    recipient: 'あなた',
+    avatarLabel: '✨ ハル',
+    speech: '本当にありがとう！🙏\n3つから好きなの選んでね💕',
+    avatar: { faceColor:'#FFE0CC', hairStyle:'wavy', hairColor:'#8B5E3C', eyeStyle:'sparkle', accessory:'earring', outfit:'casual', expression:'love', motion:'heartbeat' },
+    isSet: true,
+    setName: 'ありがとうセット',
+    setItems: [
+      { emoji:'🍵', name:'高級抹茶セット', price:2500 },
+      { emoji:'🧴', name:'ハンドクリーム', price:2200 },
+      { emoji:'🎀', name:'シルクスカーフ', price:2800 },
+    ]
+  }
+];
+
+let demoScenarioIdx = 0;
+let demoAnimFrame = null;
+let demoMotionTime = 0;
+let demoChosenIdx = -1;
+let demoReacted = false;
+
+function openDemoModal() {
+  demoScenarioIdx = 0;
+  demoChosenIdx = -1;
+  demoReacted = false;
+  document.getElementById('demoModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  initDemoStars();
+  renderDemoScenario(0);
+}
+
+function closeDemoModal() {
+  document.getElementById('demoModal').classList.remove('open');
+  document.body.style.overflow = '';
+  if (demoAnimFrame) { cancelAnimationFrame(demoAnimFrame); demoAnimFrame = null; }
+}
+
+function switchDemo(idx) {
+  demoScenarioIdx = idx;
+  demoChosenIdx = -1;
+  document.querySelectorAll('.demo-dot').forEach((d,i)=>d.classList.toggle('active', i===idx));
+  renderDemoScenario(idx);
+}
+
+function initDemoStars() {
+  const sf = document.getElementById('demoStarField');
+  if (sf.children.length > 0) return; // already done
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'demo-star';
+    const size = Math.random() * 2.5 + 0.8;
+    s.style.cssText = `
+      left:${Math.random()*100}%; top:${Math.random()*100}%;
+      width:${size}px; height:${size}px;
+      animation-duration:${1+Math.random()*3}s;
+      animation-delay:${Math.random()*3}s;
+    `;
+    sf.appendChild(s);
+  }
+}
+
+function renderDemoScenario(idx) {
+  const sc = DEMO_SCENARIOS[idx];
+
+  // Names
+  document.getElementById('demoRecipient').textContent = sc.recipient;
+  document.getElementById('demoSender').textContent = sc.sender;
+  document.getElementById('demoAvatarLabel').textContent = sc.avatarLabel;
+  document.getElementById('demoSpeech').innerHTML = sc.speech.replace(/\n/g,'<br>');
+
+  // Reset reaction area
+  document.getElementById('demoReactionRow').style.display = 'none';
+  document.getElementById('demoReactSent').classList.remove('show');
+  document.getElementById('demoCta').style.display = 'flex';
+  document.querySelectorAll('.demo-react-btn').forEach(b=>b.classList.remove('sel'));
+  demoReacted = false;
+  demoChosenIdx = -1;
+
+  // Render gift area
+  const area = document.getElementById('demoGiftArea');
+  if (!sc.isSet) {
+    // Single gift
+    area.innerHTML = `
+      <div class="demo-gift-card">
+        <span class="demo-gift-emoji">${sc.gift.emoji}</span>
+        <div class="demo-gift-name">${sc.gift.name}</div>
+        <div class="demo-gift-price">¥${sc.gift.price.toLocaleString()}</div>
+      </div>
+    `;
+    // Show reaction right away
+    setTimeout(()=>{ document.getElementById('demoReactionRow').style.display='flex'; }, 500);
+  } else {
+    // 3-choice set
+    const cardsHtml = sc.setItems.map((item,i)=>`
+      <div class="demo-set-card" id="dsc${i}" onclick="demoPick(${i})">
+        <div class="demo-set-badge">✓</div>
+        <span class="demo-set-emoji">${item.emoji}</span>
+        <div class="demo-set-name">${item.name}</div>
+        <div class="demo-set-price">¥${item.price.toLocaleString()}</div>
+      </div>
+    `).join('');
+    area.innerHTML = `
+      <div class="demo-set-label">∴ 3択セットギフト</div>
+      <div class="demo-set-title" id="demoSetTitle">🎁 3つから1つ選んでね</div>
+      <div class="demo-set-grid">${cardsHtml}</div>
+      <button class="demo-decide-btn" id="demoDecideBtn" onclick="demoDecide()">✨ これにする！</button>
+      <div class="demo-chosen-result" id="demoChosenResult"></div>
+    `;
+  }
+
+  // Avatar
+  startDemoAvatar(sc.avatar);
+}
+
+// ===== Avatar Drawing =====
+function startDemoAvatar(av) {
+  if (demoAnimFrame) { cancelAnimationFrame(demoAnimFrame); demoAnimFrame = null; }
+  demoMotionTime = 0;
+  const canvas = document.getElementById('demoAvatarCanvas');
+  const ctx = canvas.getContext('2d');
+  const motion = av.motion || 'bounce';
+
+  function tick() {
+    demoMotionTime += 0.055;
+    let yOff=0, rot=0, sc=1;
+    if (motion==='bounce')    yOff = Math.sin(demoMotionTime*2.5)*10;
+    else if (motion==='wave') { yOff=Math.sin(demoMotionTime*2)*4; rot=Math.sin(demoMotionTime*3)*0.07; }
+    else if (motion==='spin') rot = demoMotionTime*0.05;
+    else if (motion==='heartbeat') sc = 1+Math.abs(Math.sin(demoMotionTime*3))*0.1;
+    else if (motion==='tada') { yOff=Math.sin(demoMotionTime*4)*7; rot=Math.sin(demoMotionTime*5)*0.09; sc=1+Math.abs(Math.sin(demoMotionTime*4))*0.07; }
+    drawDemoAvatar(ctx, av, yOff, sc, rot);
+    demoAnimFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function drawDemoAvatar(ctx, s, yOff=0, sc=1, rot=0) {
+  const W=180, H=180;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(W/2, H/2+yOff);
+  ctx.rotate(rot);
+  ctx.scale(sc,sc);
+  ctx.translate(-W/2,-H/2);
+
+  const outfitColors = { casual:'#7EC8E3', formal:'#4A5568', dress:'#FF9FB2', yukata:'#6B8E6E' };
+  const bodyColor = outfitColors[s.outfit] || '#7EC8E3';
+  const cx=90, cy=90;
+
+  // Body
+  ctx.beginPath(); ctx.ellipse(cx,148,34,26,0,0,Math.PI*2);
+  ctx.fillStyle=bodyColor; ctx.fill();
+
+  // Neck
+  ctx.beginPath(); ctx.rect(82,120,16,18);
+  ctx.fillStyle=s.faceColor; ctx.fill();
+
+  // Head
+  ctx.beginPath(); ctx.arc(cx,98,40,0,Math.PI*2);
+  ctx.fillStyle=s.faceColor; ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Hair
+  drawDemoHair(ctx,s.hairStyle,s.hairColor,cx);
+
+  // Eyes
+  drawDemoEyes(ctx,s.eyeStyle,s.expression,cx);
+
+  // Nose
+  ctx.beginPath(); ctx.arc(cx,104,3,0,Math.PI);
+  ctx.strokeStyle='rgba(0,0,0,0.14)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Mouth
+  drawDemoMouth(ctx,s.expression,cx);
+
+  // Cheeks
+  if(['love','happy','celebrate','cheer','shy'].includes(s.expression)){
+    ctx.beginPath(); ctx.ellipse(cx-20,108,8,5,-0.2,0,Math.PI*2); ctx.fillStyle='rgba(255,150,150,0.32)'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+20,108,8,5,0.2,0,Math.PI*2); ctx.fill();
+  }
+
+  // Accessory
+  drawDemoAccessory(ctx,s.accessory,cx);
+
+  ctx.restore();
+}
+
+function drawDemoHair(ctx,style,color,cx){
+  ctx.fillStyle=color;
+  if(style==='short'){
+    ctx.beginPath(); ctx.arc(cx,86,40,Math.PI,0); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,88,40,-0.3,Math.PI+0.3); ctx.fill();
+  } else if(style==='long'){
+    ctx.beginPath(); ctx.arc(cx,86,40,Math.PI,0); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx-27,118,14,30,-0.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+27,118,14,30,0.12,0,Math.PI*2); ctx.fill();
+  } else if(style==='wavy'){
+    ctx.beginPath(); ctx.arc(cx,86,40,Math.PI,0); ctx.fill();
+    for(let i=0;i<3;i++){
+      ctx.beginPath(); ctx.arc(cx-22+i*22,132+Math.sin(i)*6,11,0,Math.PI*2); ctx.fill();
+    }
+  } else if(style==='bun'){
+    ctx.beginPath(); ctx.arc(cx,86,40,Math.PI+0.25,-0.25); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,58,17,0,Math.PI*2); ctx.fill();
+  } else if(style==='hat'){
+    ctx.beginPath(); ctx.ellipse(cx,78,40,14,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx,63,28,24,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+18,64,5,0,Math.PI*2); ctx.fillStyle='#FF6B9D'; ctx.fill();
+  }
+}
+
+function drawDemoEyes(ctx,style,expr,cx){
+  if(['happy','celebrate','cheer','excited'].includes(expr)){
+    ctx.beginPath(); ctx.arc(cx-14,96,7,Math.PI,0); ctx.strokeStyle='#333'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+14,96,7,Math.PI,0); ctx.stroke();
+  } else if(expr==='love'){
+    drawDemoHeart(ctx,cx-16,91,8);
+    drawDemoHeart(ctx,cx+10,91,8);
+  } else if(expr==='cool'){
+    ctx.fillStyle='#222';
+    ctx.beginPath(); ctx.roundRect(cx-26,91,20,11,5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(cx+6,91,20,11,5); ctx.fill();
+  } else {
+    const r = style==='sleepy' ? 5 : 6;
+    const iris = style==='sparkle' ? '#FF6B9D' : '#3B5EDB';
+    [cx-14,cx+14].forEach(ex=>{
+      ctx.beginPath(); ctx.ellipse(ex,96,r,r*0.9,0,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle='#333'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(ex,96,r*0.52,0,Math.PI*2); ctx.fillStyle=iris; ctx.fill();
+      ctx.beginPath(); ctx.arc(ex-2,93,1.5,0,Math.PI*2); ctx.fillStyle='white'; ctx.fill();
+    });
+    if(style==='sleepy'){
+      ctx.beginPath(); ctx.moveTo(cx-20,91); ctx.lineTo(cx-8,91); ctx.strokeStyle='#555'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+8,91); ctx.lineTo(cx+20,91); ctx.stroke();
+    }
+  }
+}
+
+function drawDemoHeart(ctx,x,y,size){
+  ctx.save(); ctx.fillStyle='#FF4B6E';
+  ctx.beginPath();
+  ctx.moveTo(x,y+size*0.3);
+  ctx.bezierCurveTo(x,y-size*0.3,x-size,y-size*0.3,x-size,y+size*0.3);
+  ctx.bezierCurveTo(x-size,y+size*0.8,x,y+size*1.2,x,y+size*1.2);
+  ctx.bezierCurveTo(x,y+size*1.2,x+size,y+size*0.8,x+size,y+size*0.3);
+  ctx.bezierCurveTo(x+size,y-size*0.3,x,y-size*0.3,x,y+size*0.3);
+  ctx.fill(); ctx.restore();
+}
+
+function drawDemoMouth(ctx,expr,cx){
+  ctx.lineWidth=2.5; ctx.strokeStyle='#333'; ctx.lineCap='round';
+  if(['happy','celebrate','cheer'].includes(expr)){
+    ctx.beginPath(); ctx.arc(cx,110,12,0.15,Math.PI-0.15); ctx.stroke();
+    ctx.fillStyle='#FF8A9A';
+    ctx.beginPath(); ctx.arc(cx,110,10,0.2,Math.PI-0.2); ctx.fill();
+  } else if(expr==='love'){
+    ctx.beginPath(); ctx.arc(cx,112,10,0.2,Math.PI-0.2); ctx.stroke();
+  } else if(expr==='thanks'){
+    ctx.beginPath(); ctx.moveTo(cx-12,114); ctx.quadraticCurveTo(cx,120,cx+12,114); ctx.stroke();
+  } else if(expr==='cool'){
+    ctx.beginPath(); ctx.moveTo(cx-12,113); ctx.lineTo(cx+12,113); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(cx,112,9,0.15,Math.PI-0.15); ctx.stroke();
+  }
+}
+
+function drawDemoAccessory(ctx,acc,cx){
+  if(acc==='glasses'){
+    ctx.strokeStyle='#555'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(cx-25,90,18,14,4); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(cx+7,90,18,14,4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-7,97); ctx.lineTo(cx+7,97); ctx.stroke();
+  } else if(acc==='ribbon'){
+    ctx.fillStyle='#FF6B9D';
+    ctx.beginPath(); ctx.ellipse(cx,60,14,8,-0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx,60,14,8,0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,60,5,0,Math.PI*2); ctx.fillStyle='#FF3B7A'; ctx.fill();
+  } else if(acc==='earring'){
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath(); ctx.arc(cx-33,104,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+33,104,5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(cx-33,110,4,0,Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+33,110,4,0,Math.PI); ctx.stroke();
+  } else if(acc==='flower'){
+    ctx.fillStyle='#FFB7C5';
+    for(let i=0;i<5;i++){
+      ctx.beginPath(); ctx.ellipse(cx+14+Math.cos(i*Math.PI*2/5)*9,68+Math.sin(i*Math.PI*2/5)*9,5,4,i*Math.PI*2/5,0,Math.PI*2); ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(cx+14,68,5,0,Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
+  }
+}
+
+// ===== 3-choice set interactions =====
+function demoPick(idx){
+  demoChosenIdx = idx;
+  document.querySelectorAll('.demo-set-card').forEach((c,i)=>{
+    c.classList.remove('chosen','dimmed');
+    if(i===idx) c.classList.add('chosen');
+    else c.classList.add('dimmed');
+  });
+  const btn = document.getElementById('demoDecideBtn');
+  if(btn) btn.classList.add('ready');
+}
+
+function demoDecide(){
+  if(demoChosenIdx<0) return;
+  const sc = DEMO_SCENARIOS[demoScenarioIdx];
+  const chosen = sc.setItems[demoChosenIdx];
+
+  // Fade out grid
+  const grid = document.querySelector('.demo-set-grid');
+  const btn = document.getElementById('demoDecideBtn');
+  const title = document.getElementById('demoSetTitle');
+  const label = document.querySelector('.demo-set-label');
+  [grid,btn,title,label].forEach(el=>{ if(el){ el.style.transition='opacity 0.4s'; el.style.opacity='0'; } });
+
+  setTimeout(()=>{
+    [grid,btn,title,label].forEach(el=>{ if(el) el.style.display='none'; });
+    const result = document.getElementById('demoChosenResult');
+    result.innerHTML = `
+      <div class="demo-gift-card" style="margin-top:8px;">
+        <span class="demo-gift-emoji">${chosen.emoji}</span>
+        <div class="demo-gift-name">${chosen.name}</div>
+        <div class="demo-gift-price">¥${chosen.price.toLocaleString()}</div>
+      </div>
+    `;
+    result.classList.add('show');
+    demoLaunchConfetti();
+
+    // Show reaction
+    setTimeout(()=>{ document.getElementById('demoReactionRow').style.display='flex'; },600);
+  },440);
+}
+
+// ===== Reaction =====
+function demoReact(emoji, el){
+  if(demoReacted) return;
+  demoReacted = true;
+  document.querySelectorAll('.demo-react-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('demoSentIcon').textContent = emoji;
+
+  setTimeout(()=>{
+    document.getElementById('demoReactionRow').style.display='none';
+    document.getElementById('demoReactSent').classList.add('show');
+    demoLaunchConfetti(25);
+  },350);
+}
+
+// ===== Mini confetti =====
+function demoLaunchConfetti(count=30){
+  const colors=['#FF6B9D','#A855F7','#FFD700','#FF8C42','#64B5F6'];
+  const modal = document.getElementById('demoPanelInner');
+  for(let i=0;i<count;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.style.cssText=`
+        position:absolute;
+        left:${Math.random()*100}%;
+        top:-8px;
+        width:${4+Math.random()*6}px;
+        height:${4+Math.random()*6}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        z-index:99;
+        pointer-events:none;
+        animation:confettiFall ${1.8+Math.random()*1.5}s ${Math.random()*0.3}s linear forwards;
+      `;
+      modal.appendChild(p);
+      setTimeout(()=>p.remove(),3200);
+    }, i*30);
+  }
+}
+
+// Confetti fall keyframe (inject once)
+(function(){
+  if(document.getElementById('demoConfettiStyle')) return;
+  const st=document.createElement('style');
+  st.id='demoConfettiStyle';
+  st.textContent=`
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity:1; }
+      100% { transform: translateY(300px) rotate(360deg); opacity:0; }
+    }
+  `;
+  document.head.appendChild(st);
+})();
+
+// ESC key close
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDemoModal(); });
+
+// ===== 絶対URLで demo リンクをセット（LINE内部ブラウザ対策）=====
+(function() {
+  const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+  const el = document.getElementById('demoFullLink');
+  if (el) el.href = base + 'receive.html?demo=1';
+})();
+
+// Header scroll effect
+window.addEventListener('scroll', () => {
+  const h = document.getElementById('lpHeader');
+  if (window.scrollY > 60) {
+    h.style.background = 'rgba(15,12,41,0.97)';
+  } else {
+    h.style.background = 'rgba(15,12,41,0.85)';
+  }
+});
+
+// Subtle particles on hero only
+const container = document.getElementById('lpParticles');
+const emojis = ['🎁','💝','✨','🌟','💫','🎀','💌'];
+for (let i = 0; i < 10; i++) {
+  const p = document.createElement('div');
+  p.style.cssText = `
+    position:absolute;
+    left:${Math.random()*100}%;
+    opacity:0.08;
+    font-size:${1 + Math.random()*0.8}rem;
+    animation: floatUp ${9+Math.random()*8}s ${Math.random()*10}s linear infinite;
+  `;
+  p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  container.appendChild(p);
+}
+</script>
+
+<style>
+@keyframes floatUp {
+  0%   { transform: translateY(110vh) rotate(0deg); opacity: 0.08; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+</style>
+</body>
+</html>

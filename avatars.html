@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アバター管理 - Okuri-Bit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body { background: linear-gradient(135deg, #FFF0F8 0%, #F3E8FF 100%); min-height: 100vh; }
+
+    .page-wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    /* ===== Page Header ===== */
+    .page-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .page-heading-left h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-heading-left p {
+      color: var(--text-light);
+      font-size: 0.85rem;
+    }
+
+    /* ===== Tabs ===== */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #f0e8ff;
+      border-radius: 16px;
+      padding: 5px;
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tab-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(255,107,157,0.18);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== Avatar Grid ===== */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+    }
+
+    .avatar-card {
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 4px 16px rgba(168,85,247,0.1);
+      overflow: hidden;
+      transition: all 0.28s;
+      position: relative;
+      border: 2px solid transparent;
+    }
+    .avatar-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(168,85,247,0.18);
+      border-color: rgba(255,107,157,0.25);
+    }
+    .avatar-card.using {
+      border-color: var(--primary);
+      box-shadow: 0 4px 20px rgba(255,107,157,0.3);
+    }
+
+    .avatar-card-canvas-wrap {
+      background: linear-gradient(160deg, #FFF5FB 0%, #F5EEFF 100%);
+      padding: 16px 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .avatar-card-canvas-wrap canvas {
+      display: block;
+    }
+
+    .using-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+
+    .avatar-card-info {
+      padding: 12px 14px 14px;
+    }
+    .avatar-card-name {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .avatar-card-meta {
+      font-size: 0.72rem;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .avatar-card-tag {
+      background: #f5f0ff;
+      color: var(--secondary);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .avatar-card-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .av-btn {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .av-btn-use {
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+    }
+    .av-btn-use:hover { opacity: 0.88; transform: translateY(-1px); }
+    .av-btn-edit {
+      background: #f5f0ff;
+      color: var(--secondary);
+    }
+    .av-btn-edit:hover { background: #ede5ff; }
+    .av-btn-delete {
+      background: #fff0f0;
+      color: #e05;
+      flex: 0 0 34px;
+      padding: 7px;
+    }
+    .av-btn-delete:hover { background: #ffe0e0; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-light);
+    }
+    .empty-icon { font-size: 3.5rem; margin-bottom: 14px; }
+    .empty-title { font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .empty-desc { font-size: 0.85rem; line-height: 1.7; }
+
+    /* Loading skeleton */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+    }
+    .skeleton-card {
+      background: white;
+      border-radius: 22px;
+      overflow: hidden;
+      animation: skelPulse 1.4s ease-in-out infinite;
+    }
+    .skel-top { height: 180px; background: #f5f0ff; }
+    .skel-body { padding: 12px 14px 14px; }
+    .skel-line { height: 14px; background: #eee; border-radius: 7px; margin-bottom: 8px; }
+    .skel-line.short { width: 60%; }
+    @keyframes skelPulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    /* ===== Create / Edit Form ===== */
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 680px) {
+      .form-layout { grid-template-columns: 1fr; }
+    }
+
+    .custom-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(168,85,247,0.1);
+    }
+    .custom-section { margin-bottom: 24px; }
+    .custom-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .option-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .opt-btn {
+      padding: 7px 14px;
+      border-radius: 50px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .opt-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .opt-btn.active { border-color: var(--primary); color: var(--primary); background: #fff0f7; }
+
+    .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-swatch {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .color-swatch:hover { transform: scale(1.15); }
+    .color-swatch.active { border-color: var(--primary); transform: scale(1.15); }
+
+    .expr-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .expr-btn {
+      padding: 10px 6px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 1.4rem;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: inherit;
+    }
+    .expr-btn span { display: block; font-size: 0.62rem; color: var(--text-light); font-weight: 700; margin-top: 3px; }
+    .expr-btn:hover { transform: scale(1.05); border-color: var(--primary); }
+    .expr-btn.active { border-color: var(--primary); background: #fff0f7; box-shadow: 0 4px 12px rgba(255,107,157,0.2); }
+
+    .motion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .motion-btn {
+      padding: 12px 8px;
+      border-radius: 14px;
+      border: 2px solid #eee;
+      background: white;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: inherit;
+    }
+    .motion-btn span { display: block; font-size: 0.62rem; color: var(--text-light); font-weight: 700; margin-top: 3px; }
+    .motion-btn:hover { border-color: var(--secondary); }
+    .motion-btn.active { border-color: var(--secondary); background: #f5ecff; box-shadow: 0 4px 12px rgba(168,85,247,0.2); }
+
+    .name-input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 2px solid #eee;
+      border-radius: 50px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .name-input:focus { border-color: var(--primary); }
+
+    /* Preview sticky card */
+    .preview-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(168,85,247,0.1);
+      text-align: center;
+      position: sticky;
+      top: 80px;
+    }
+    .preview-title {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .motion-label-sm { font-size: 0.75rem; color: var(--text-light); margin-top: 6px; }
+    .expr-display-sm { font-size: 1.4rem; margin-top: 4px; }
+
+    /* Form actions */
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    /* Delete confirm modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 28px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(0.8); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .modal-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .modal-title { font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+    .modal-desc { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; margin-bottom: 22px; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-btn-cancel {
+      flex: 1; padding: 12px; border-radius: 50px;
+      border: 2px solid #eee; background: white;
+      font-weight: 700; cursor: pointer; font-family: inherit; font-size: 0.9rem;
+    }
+    .modal-btn-delete {
+      flex: 1; padding: 12px; border-radius: 50px;
+      border: none; background: #FF3B6E; color: white;
+      font-weight: 800; cursor: pointer; font-family: inherit; font-size: 0.9rem;
+    }
+    .modal-btn-cancel:hover { border-color: #ccc; }
+    .modal-btn-delete:hover { background: #e02060; }
+
+    /* Count badge */
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      margin-left: 6px;
+    }
+
+    /* Responsive */
+    @media (max-width: 540px) {
+      .avatar-grid { grid-template-columns: repeat(2, 1fr); }
+      .avatar-card-actions { flex-wrap: wrap; }
+    }
+    @media (max-width: 360px) {
+      .avatar-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🎁</div>
+      <span class="logo-text">Okuri-Bit</span>
+    </a>
+    <nav class="header-nav">
+      <a href="gift.html" class="btn btn-primary"><i class="fas fa-gift"></i> ギフトを贈る</a>
+      <a href="community.html" class="btn btn-outline"><i class="fas fa-users"></i> みんなの投稿</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- Page Heading -->
+  <div class="page-heading">
+    <div class="page-heading-left">
+      <h1>🎭 アバター管理</h1>
+      <p>アバターをストックして、ギフトに使いまわせます</p>
+    </div>
+    <button class="btn btn-primary" onclick="switchTab('create')">
+      <i class="fas fa-plus"></i> 新しく作る
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabMyAvatars" onclick="switchTab('list')">
+      <i class="fas fa-th"></i> マイアバター
+      <span class="count-badge" id="avatarCountBadge">0</span>
+    </button>
+    <button class="tab-btn" id="tabCreate" onclick="switchTab('create')">
+      <i class="fas fa-paint-brush"></i> 新しく作る / 編集
+    </button>
+  </div>
+
+  <!-- ===== Tab: List ===== -->
+  <div class="tab-panel active" id="panelList">
+    <!-- Loading skeleton -->
+    <div id="loadingSkeleton" class="skeleton-grid">
+      <div class="skeleton-card"><div class="skel-top"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skel-top"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skel-top"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line short"></div></div></div>
+    </div>
+    <!-- Avatar grid (JS populated) -->
+    <div class="avatar-grid" id="avatarGrid" style="display:none;"></div>
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">🎭</div>
+      <div class="empty-title">アバターがまだありません</div>
+      <div class="empty-desc">「新しく作る」からアバターを作成してストックしましょう！</div>
+      <button class="btn btn-primary" style="margin-top:20px;" onclick="switchTab('create')">
+        <i class="fas fa-plus"></i> アバターを作る
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Tab: Create/Edit ===== -->
+  <div class="tab-panel" id="panelCreate">
+    <div class="form-layout">
+
+      <!-- Left: Customization -->
+      <div>
+        <div class="custom-card" id="editingBanner" style="display:none; margin-bottom:16px; background:linear-gradient(135deg,#fff0f7,#f5eeff); border:2px solid rgba(255,107,157,0.25);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:1.4rem;">✏️</span>
+            <div>
+              <div style="font-weight:800; font-size:0.9rem; color:var(--text);">編集モード</div>
+              <div style="font-size:0.78rem; color:var(--text-light);" id="editingName">アバターを編集しています</div>
+            </div>
+            <button onclick="cancelEdit()" style="margin-left:auto; background:none; border:1px solid #ddd; border-radius:50px; padding:5px 12px; font-size:0.78rem; cursor:pointer; font-family:inherit; color:var(--text-light);">キャンセル</button>
+          </div>
+        </div>
+
+        <div class="custom-card">
+          <!-- Avatar Name -->
+          <div class="custom-section">
+            <div class="custom-label">🏷️ アバター名</div>
+            <input type="text" class="name-input" id="newAvatarName" placeholder="例：さくらちゃん" maxlength="12" oninput="updateNewPreview()">
+          </div>
+
+          <!-- Face Color -->
+          <div class="custom-section">
+            <div class="custom-label">🎨 肌の色</div>
+            <div class="color-row" id="newFaceColorRow">
+              <div class="color-swatch active" style="background:#FFDABB;" data-val="#FFDABB" onclick="setNew('faceColor','#FFDABB',this)"></div>
+              <div class="color-swatch" style="background:#F5C5A3;" data-val="#F5C5A3" onclick="setNew('faceColor','#F5C5A3',this)"></div>
+              <div class="color-swatch" style="background:#E8A87C;" data-val="#E8A87C" onclick="setNew('faceColor','#E8A87C',this)"></div>
+              <div class="color-swatch" style="background:#C68642;" data-val="#C68642" onclick="setNew('faceColor','#C68642',this)"></div>
+              <div class="color-swatch" style="background:#8D5524;" data-val="#8D5524" onclick="setNew('faceColor','#8D5524',this)"></div>
+            </div>
+          </div>
+
+          <!-- Hair Style -->
+          <div class="custom-section">
+            <div class="custom-label">💇 髪型</div>
+            <div class="option-row" id="newHairStyleRow">
+              <button class="opt-btn active" data-val="short" onclick="setNew('hairStyle','short',this)">ショート</button>
+              <button class="opt-btn" data-val="long" onclick="setNew('hairStyle','long',this)">ロング</button>
+              <button class="opt-btn" data-val="wavy" onclick="setNew('hairStyle','wavy',this)">ウェーブ</button>
+              <button class="opt-btn" data-val="bun" onclick="setNew('hairStyle','bun',this)">お団子</button>
+              <button class="opt-btn" data-val="hat" onclick="setNew('hairStyle','hat',this)">帽子</button>
+            </div>
+          </div>
+
+          <!-- Hair Color -->
+          <div class="custom-section">
+            <div class="custom-label">🎨 髪の色</div>
+            <div class="color-row" id="newHairColorRow">
+              <div class="color-swatch active" style="background:#3D2B1F;" data-val="#3D2B1F" onclick="setNew('hairColor','#3D2B1F',this)"></div>
+              <div class="color-swatch" style="background:#6B4226;" data-val="#6B4226" onclick="setNew('hairColor','#6B4226',this)"></div>
+              <div class="color-swatch" style="background:#D4A056;" data-val="#D4A056" onclick="setNew('hairColor','#D4A056',this)"></div>
+              <div class="color-swatch" style="background:#F4D1D1;" data-val="#F4D1D1" onclick="setNew('hairColor','#F4D1D1',this)"></div>
+              <div class="color-swatch" style="background:#7B7FCD;" data-val="#7B7FCD" onclick="setNew('hairColor','#7B7FCD',this)"></div>
+              <div class="color-swatch" style="background:#E0E0E0;" data-val="#E0E0E0" onclick="setNew('hairColor','#E0E0E0',this)"></div>
+            </div>
+          </div>
+
+          <!-- Eye Style -->
+          <div class="custom-section">
+            <div class="custom-label">👁️ 目の形</div>
+            <div class="option-row" id="newEyeStyleRow">
+              <button class="opt-btn active" data-val="normal" onclick="setNew('eyeStyle','normal',this)">🔵 ふつう</button>
+              <button class="opt-btn" data-val="sparkle" onclick="setNew('eyeStyle','sparkle',this)">✨ キラキラ</button>
+              <button class="opt-btn" data-val="happy" onclick="setNew('eyeStyle','happy',this)">😊 にっこり</button>
+              <button class="opt-btn" data-val="sleepy" onclick="setNew('eyeStyle','sleepy',this)">😴 たれ目</button>
+            </div>
+          </div>
+
+          <!-- Accessory -->
+          <div class="custom-section">
+            <div class="custom-label">💎 アクセサリー</div>
+            <div class="option-row" id="newAccessoryRow">
+              <button class="opt-btn active" data-val="none" onclick="setNew('accessory','none',this)">なし</button>
+              <button class="opt-btn" data-val="glasses" onclick="setNew('accessory','glasses',this)">👓 メガネ</button>
+              <button class="opt-btn" data-val="ribbon" onclick="setNew('accessory','ribbon',this)">🎀 リボン</button>
+              <button class="opt-btn" data-val="earring" onclick="setNew('accessory','earring',this)">💎 イヤリング</button>
+              <button class="opt-btn" data-val="flower" onclick="setNew('accessory','flower',this)">🌸 お花</button>
+            </div>
+          </div>
+
+          <!-- Outfit -->
+          <div class="custom-section">
+            <div class="custom-label">👗 服装</div>
+            <div class="option-row" id="newOutfitRow">
+              <button class="opt-btn active" data-val="casual" onclick="setNew('outfit','casual',this)">👕 カジュアル</button>
+              <button class="opt-btn" data-val="formal" onclick="setNew('outfit','formal',this)">👔 フォーマル</button>
+              <button class="opt-btn" data-val="dress" onclick="setNew('outfit','dress',this)">👗 ドレス</button>
+              <button class="opt-btn" data-val="yukata" onclick="setNew('outfit','yukata',this)">👘 浴衣</button>
+            </div>
+          </div>
+
+          <!-- Expression -->
+          <div class="custom-section">
+            <div class="custom-label">😊 表情</div>
+            <div class="expr-grid">
+              <button class="expr-btn active" data-val="happy"     onclick="setNewExpr('happy',this)">😄<span>うれしい</span></button>
+              <button class="expr-btn" data-val="love"      onclick="setNewExpr('love',this)">🥰<span>愛してる</span></button>
+              <button class="expr-btn" data-val="thanks"    onclick="setNewExpr('thanks',this)">🙏<span>感謝</span></button>
+              <button class="expr-btn" data-val="cool"      onclick="setNewExpr('cool',this)">😎<span>クール</span></button>
+              <button class="expr-btn" data-val="excited"   onclick="setNewExpr('excited',this)">🤩<span>感激</span></button>
+              <button class="expr-btn" data-val="shy"       onclick="setNewExpr('shy',this)">😊<span>恥ずかしい</span></button>
+              <button class="expr-btn" data-val="celebrate" onclick="setNewExpr('celebrate',this)">🎉<span>お祝い</span></button>
+              <button class="expr-btn" data-val="cheer"     onclick="setNewExpr('cheer',this)">💪<span>応援</span></button>
+            </div>
+          </div>
+
+          <!-- Motion -->
+          <div class="custom-section" style="margin-bottom:0;">
+            <div class="custom-label">💃 モーション</div>
+            <div class="motion-grid">
+              <button class="motion-btn active" data-val="bounce"    onclick="setNewMotion('bounce',this)">🦋<span>ジャンプ</span></button>
+              <button class="motion-btn" data-val="wave"      onclick="setNewMotion('wave',this)">👋<span>手を振る</span></button>
+              <button class="motion-btn" data-val="spin"      onclick="setNewMotion('spin',this)">🌀<span>くるくる</span></button>
+              <button class="motion-btn" data-val="heartbeat" onclick="setNewMotion('heartbeat',this)">💓<span>ドキドキ</span></button>
+              <button class="motion-btn" data-val="tada"      onclick="setNewMotion('tada',this)">🎊<span>やったー</span></button>
+              <button class="motion-btn" data-val="none"      onclick="setNewMotion('none',this)">🧘<span>静止</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button class="btn btn-primary" style="flex:2; justify-content:center;" onclick="saveAvatar()">
+            <i class="fas fa-save"></i> <span id="saveBtnLabel">ストックに保存</span>
+          </button>
+          <button class="btn btn-outline" style="flex:1; justify-content:center;" onclick="resetForm()">
+            <i class="fas fa-redo"></i> リセット
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Preview -->
+      <div>
+        <div class="preview-card">
+          <div class="preview-title">プレビュー</div>
+          <div style="position:relative; width:180px; height:180px; margin:0 auto 8px;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,157,0.15) 0%,transparent 70%);pointer-events:none;"></div>
+            <canvas id="newAvatarCanvas" width="180" height="180" style="display:block;position:relative;z-index:1;filter:drop-shadow(0 2px 8px rgba(255,107,157,0.2));"></canvas>
+          </div>
+          <div id="newAvatarNameDisplay" style="font-weight:800; font-size:1rem; margin-bottom:4px; color:var(--text);">アバター</div>
+          <div class="expr-display-sm" id="newExprDisplay">😄</div>
+          <div class="motion-label-sm" id="newMotionLabel">ジャンプ中</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title">アバターを削除しますか？</div>
+    <div class="modal-desc" id="deleteModalDesc">このアバターを削除します。この操作は取り消せません。</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeDeleteModal()">キャンセル</button>
+      <button class="modal-btn-delete" onclick="confirmDelete()"><i class="fas fa-trash"></i> 削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+const senderId = getSenderId();
+let allAvatars = [];
+let editingAvatarId = null;
+let deleteTargetId = null;
+let newAnimFrame = null;
+let newMotionTime = 0;
+const cardCanvases = {}; // id -> {canvas, animFrame, motionTime}
+
+const EXPR_EMOJI = {
+  happy:'😄', love:'🥰', thanks:'🙏', cool:'😎',
+  excited:'🤩', shy:'😊', celebrate:'🎉', cheer:'💪'
+};
+const MOTION_LABEL = {
+  bounce:'ジャンプ中', wave:'手を振ってる', spin:'くるくる',
+  heartbeat:'ドキドキ', tada:'やったー！', none:'おすまし'
+};
+
+// Form state
+const newState = {
+  faceColor:'#FFDABB', hairStyle:'short', hairColor:'#3D2B1F',
+  eyeStyle:'normal', accessory:'none', outfit:'casual',
+  expression:'happy', motion:'bounce'
+};
+
+// ===== Sender ID =====
+function getSenderId() {
+  let id = localStorage.getItem('obt_sender_id');
+  if (!id) {
+    id = 'sender_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    localStorage.setItem('obt_sender_id', id);
+  }
+  return id;
+}
+
+// ===== Tab switching =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (tab === 'list') {
+    document.getElementById('tabMyAvatars').classList.add('active');
+    document.getElementById('panelList').classList.add('active');
+  } else {
+    document.getElementById('tabCreate').classList.add('active');
+    document.getElementById('panelCreate').classList.add('active');
+    startNewPreview();
+  }
+}
+
+// ===== Load Avatars =====
+async function loadAvatars() {
+  try {
+    const res = await fetch(`tables/avatars?sort=created_at&limit=100`);
+    const data = await res.json();
+    allAvatars = (data.data || []).filter(a => a.sender_id === senderId);
+    renderAvatarGrid();
+  } catch(e) {
+    allAvatars = [];
+    renderAvatarGrid();
+  }
+}
+
+function renderAvatarGrid() {
+  document.getElementById('loadingSkeleton').style.display = 'none';
+  const grid = document.getElementById('avatarGrid');
+  const empty = document.getElementById('emptyState');
+  const badge = document.getElementById('avatarCountBadge');
+  badge.textContent = allAvatars.length;
+
+  // Stop all card animations
+  Object.values(cardCanvases).forEach(c => { if(c.animFrame) cancelAnimationFrame(c.animFrame); });
+
+  if (allAvatars.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  grid.innerHTML = '';
+
+  allAvatars.forEach(av => {
+    const card = document.createElement('div');
+    card.className = 'avatar-card';
+    card.id = 'avcard_' + av.id;
+
+    const exprEmoji = EXPR_EMOJI[av.expression] || '😊';
+    const motionLbl = MOTION_LABEL[av.motion] || 'おすまし';
+    const hairLabel = {short:'ショート',long:'ロング',wavy:'ウェーブ',bun:'お団子',hat:'帽子'}[av.hair_style] || av.hair_style;
+    const outfitLabel = {casual:'カジュアル',formal:'フォーマル',dress:'ドレス',yukata:'浴衣'}[av.outfit] || av.outfit;
+    const createdAt = av.created_at ? new Date(av.created_at).toLocaleDateString('ja-JP',{month:'short',day:'numeric'}) : '';
+
+    card.innerHTML = `
+      <div class="avatar-card-canvas-wrap">
+        <canvas id="canvas_${av.id}" width="140" height="140" style="width:140px;height:140px;"></canvas>
+      </div>
+      <div class="avatar-card-info">
+        <div class="avatar-card-name" title="${av.name || 'アバター'}">${av.name || 'アバター'}</div>
+        <div class="avatar-card-meta">
+          <span class="avatar-card-tag">${exprEmoji} ${av.expression || 'happy'}</span>
+          <span class="avatar-card-tag">💃 ${motionLbl}</span>
+          <span style="color:#bbb;">${createdAt}</span>
+        </div>
+        <div class="avatar-card-actions">
+          <button class="av-btn av-btn-use" data-id="${av.id}" onclick="useAvatar(this.dataset.id)">
+            <i class="fas fa-gift"></i> 使う
+          </button>
+          <button class="av-btn av-btn-edit" data-id="${av.id}" onclick="editAvatar(this.dataset.id)">
+            <i class="fas fa-edit"></i> 編集
+          </button>
+          <button class="av-btn av-btn-delete" data-id="${av.id}" data-name="${(av.name||'アバター').replace(/"/g,'&quot;')}" onclick="openDeleteModal(this.dataset.id, this.dataset.name)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    // Start canvas animation for this card
+    startCardAnimation(av);
+  });
+}
+
+// ===== Card Canvas Animation =====
+function startCardAnimation(av) {
+  const canvas = document.getElementById('canvas_' + av.id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 140, H = 140;
+  const motion = av.motion || 'bounce';
+  let t = Math.random() * Math.PI * 2; // random start phase
+
+  function tick() {
+    t += 0.05;
+    let yOff=0, rot=0, sc=1;
+    if (motion==='bounce')    yOff = Math.sin(t*2.5)*8;
+    else if (motion==='wave') { yOff=Math.sin(t*2)*4; rot=Math.sin(t*3)*0.06; }
+    else if (motion==='spin') rot = t*0.05;
+    else if (motion==='heartbeat') sc = 1+Math.abs(Math.sin(t*3))*0.09;
+    else if (motion==='tada') { yOff=Math.sin(t*4)*6; rot=Math.sin(t*5)*0.08; sc=1+Math.abs(Math.sin(t*4))*0.07; }
+
+    drawAvatarSmall(ctx, av, W, H, yOff, sc, rot);
+    const frame = requestAnimationFrame(tick);
+    if (!cardCanvases[av.id]) cardCanvases[av.id] = {};
+    cardCanvases[av.id].animFrame = frame;
+  }
+  tick();
+}
+
+// ===== Avatar Drawing (140px card size) =====
+function drawAvatarSmall(ctx, s, W, H, yOff=0, sc=1, rot=0) {
+  const cx = W/2, cy = H/2;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(cx, cy + yOff);
+  ctx.rotate(rot);
+  ctx.scale(sc,sc);
+  ctx.translate(-cx,-cy);
+
+  const outfitColors = {casual:'#7EC8E3',formal:'#4A5568',dress:'#FF9FB2',yukata:'#6B8E6E'};
+  const bodyColor = outfitColors[s.outfit] || '#7EC8E3';
+
+  const scale = W/180; // scale down from 180px design
+  ctx.scale(scale,scale);
+  ctx.translate((180-W)/2/scale*-1, (180-H)/2/scale*-1);
+
+  // Body
+  ctx.beginPath(); ctx.ellipse(90,148,34,26,0,0,Math.PI*2);
+  ctx.fillStyle=bodyColor; ctx.fill();
+  // Neck
+  ctx.beginPath(); ctx.rect(82,118,16,18);
+  ctx.fillStyle=s.face_color||s.faceColor; ctx.fill();
+  // Head
+  ctx.beginPath(); ctx.arc(90,100,40,0,Math.PI*2);
+  ctx.fillStyle=s.face_color||s.faceColor; ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  drawHairS(ctx,s.hair_style||s.hairStyle,s.hair_color||s.hairColor);
+  drawEyesS(ctx,s.eye_style||s.eyeStyle,s.expression||'happy');
+
+  // Nose
+  ctx.beginPath(); ctx.arc(90,104,3,0,Math.PI);
+  ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  drawMouthS(ctx,s.expression||'happy');
+
+  // Cheeks
+  if(['love','shy','happy','celebrate'].includes(s.expression||'happy')){
+    ctx.beginPath(); ctx.ellipse(68,108,8,5,-0.2,0,Math.PI*2); ctx.fillStyle='rgba(255,150,150,0.35)'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(112,108,8,5,0.2,0,Math.PI*2); ctx.fill();
+  }
+
+  drawAccessoryS(ctx,s.accessory||'none');
+  drawOutfitDetailsS(ctx,s.outfit||'casual',bodyColor);
+
+  ctx.restore();
+}
+
+function drawHairS(ctx,style,color){
+  ctx.fillStyle=color;
+  if(style==='short'){
+    ctx.beginPath(); ctx.arc(90,88,40,Math.PI,0); ctx.fill();
+    ctx.beginPath(); ctx.arc(90,90,40,-0.3,Math.PI+0.3); ctx.fill();
+  } else if(style==='long'){
+    ctx.beginPath(); ctx.arc(90,88,40,Math.PI,0); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(56,115,14,30,-0.15,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(124,115,14,30,0.15,0,Math.PI*2); ctx.fill();
+  } else if(style==='wavy'){
+    ctx.beginPath(); ctx.arc(90,88,40,Math.PI,0); ctx.fill();
+    for(let i=0;i<4;i++){ ctx.beginPath(); ctx.arc(58+i*22,130+Math.sin(i)*6,10,0,Math.PI*2); ctx.fill(); }
+  } else if(style==='bun'){
+    ctx.beginPath(); ctx.arc(90,88,40,Math.PI+0.3,-0.3); ctx.fill();
+    ctx.beginPath(); ctx.arc(90,60,16,0,Math.PI*2); ctx.fill();
+  } else if(style==='hat'){
+    ctx.beginPath(); ctx.ellipse(90,78,40,14,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(90,63,28,24,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(114,64,5,0,Math.PI*2); ctx.fillStyle='#FF6B9D'; ctx.fill();
+  }
+}
+
+function drawEyesS(ctx,style,expr){
+  if(['happy','celebrate','cheer','excited'].includes(expr)){
+    ctx.beginPath(); ctx.arc(76,100,7,Math.PI,0); ctx.strokeStyle='#333'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(104,100,7,Math.PI,0); ctx.stroke();
+  } else if(expr==='love'){
+    drawHeartS(ctx,74,94,8); drawHeartS(ctx,102,94,8);
+  } else if(expr==='cool'){
+    ctx.fillStyle='#222';
+    ctx.beginPath(); ctx.roundRect(64,93,20,12,5); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(96,93,20,12,5); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(84,99); ctx.lineTo(96,99); ctx.strokeStyle='#222'; ctx.lineWidth=2.5; ctx.stroke();
+  } else {
+    const r=style==='sleepy'?5:7;
+    const iris=style==='sparkle'?'#FF6B9D':'#3B5EDB';
+    [76,104].forEach(ex=>{
+      ctx.beginPath(); ctx.ellipse(ex,100,r,r*0.9,0,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.fill(); ctx.strokeStyle='#333'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(ex,100,r*0.5,0,Math.PI*2); ctx.fillStyle=iris; ctx.fill();
+      ctx.beginPath(); ctx.arc(ex-2,97,1.5,0,Math.PI*2); ctx.fillStyle='white'; ctx.fill();
+    });
+    if(style==='sleepy'){
+      ctx.beginPath(); ctx.moveTo(69,93); ctx.lineTo(83,93); ctx.strokeStyle='#555'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(97,93); ctx.lineTo(111,93); ctx.stroke();
+    }
+  }
+}
+
+function drawHeartS(ctx,x,y,size){
+  ctx.save(); ctx.fillStyle='#FF4B6E';
+  ctx.beginPath();
+  ctx.moveTo(x,y+size*0.3);
+  ctx.bezierCurveTo(x,y-size*0.3,x-size,y-size*0.3,x-size,y+size*0.3);
+  ctx.bezierCurveTo(x-size,y+size*0.8,x,y+size*1.2,x,y+size*1.2);
+  ctx.bezierCurveTo(x,y+size*1.2,x+size,y+size*0.8,x+size,y+size*0.3);
+  ctx.bezierCurveTo(x+size,y-size*0.3,x,y-size*0.3,x,y+size*0.3);
+  ctx.fill(); ctx.restore();
+}
+
+function drawMouthS(ctx,expr){
+  ctx.lineWidth=2.5; ctx.strokeStyle='#333'; ctx.lineCap='round';
+  if(['happy','celebrate','cheer'].includes(expr)){
+    ctx.beginPath(); ctx.arc(90,112,12,0.15,Math.PI-0.15); ctx.stroke();
+    ctx.fillStyle='#FF8A9A'; ctx.beginPath(); ctx.arc(90,112,10,0.2,Math.PI-0.2); ctx.fill();
+  } else if(expr==='love'){
+    ctx.beginPath(); ctx.arc(90,114,10,0.2,Math.PI-0.2); ctx.stroke();
+  } else if(expr==='thanks'){
+    ctx.beginPath(); ctx.moveTo(78,116); ctx.quadraticCurveTo(90,122,102,116); ctx.stroke();
+  } else if(expr==='cool'){
+    ctx.beginPath(); ctx.moveTo(78,114); ctx.lineTo(102,114); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(90,114,10,0.15,Math.PI-0.15); ctx.stroke();
+  }
+}
+
+function drawAccessoryS(ctx,acc){
+  if(acc==='glasses'){
+    ctx.strokeStyle='#555'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(62,93,22,15,5); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(96,93,22,15,5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(84,100); ctx.lineTo(96,100); ctx.stroke();
+  } else if(acc==='ribbon'){
+    ctx.fillStyle='#FF6B9D';
+    ctx.beginPath(); ctx.ellipse(90,66,14,8,-0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(90,66,14,8,0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(90,66,5,0,Math.PI*2); ctx.fillStyle='#FF3B7A'; ctx.fill();
+  } else if(acc==='earring'){
+    ctx.fillStyle='#FFD700';
+    ctx.beginPath(); ctx.arc(48,108,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(132,108,5,0,Math.PI*2); ctx.fill();
+  } else if(acc==='flower'){
+    ctx.fillStyle='#FFB7C5';
+    for(let i=0;i<5;i++){
+      ctx.beginPath(); ctx.ellipse(116+Math.cos(i*Math.PI*2/5)*9,72+Math.sin(i*Math.PI*2/5)*9,5,4,i*Math.PI*2/5,0,Math.PI*2); ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(116,72,5,0,Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
+  }
+}
+
+function drawOutfitDetailsS(ctx,outfit,bodyColor){
+  if(outfit==='formal'){
+    ctx.fillStyle='white'; ctx.beginPath(); ctx.ellipse(90,150,8,14,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FF4B6E'; ctx.fillRect(86,140,8,14);
+    ctx.beginPath(); ctx.arc(90,138,4,0,Math.PI*2); ctx.fillStyle='#CC0044'; ctx.fill();
+  } else if(outfit==='dress'){
+    ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(70,138); ctx.lineTo(80,158); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(90,136); ctx.lineTo(90,160); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(110,138); ctx.lineTo(100,158); ctx.stroke();
+  }
+}
+
+// ===== Use Avatar =====
+function useAvatar(id) {
+  const av = allAvatars.find(a => a.id === id);
+  if (!av) return;
+  // Save to sessionStorage for gift flow
+  const avatarData = {
+    id: av.id,
+    name: av.name || 'アバター',
+    faceColor: av.face_color || '#FFDABB',
+    hairStyle: av.hair_style || 'short',
+    hairColor: av.hair_color || '#3D2B1F',
+    eyeStyle: av.eye_style || 'normal',
+    accessory: av.accessory || 'none',
+    outfit: av.outfit || 'casual',
+    expression: av.expression || 'happy',
+    motion: av.motion || 'bounce'
+  };
+  sessionStorage.setItem('avatarData', JSON.stringify(avatarData));
+  showToast('✅ アバターをセットしました！ギフト選択へ移動します...');
+  setTimeout(() => { window.location.href = 'gift.html'; }, 1200);
+}
+
+// ===== Edit Avatar =====
+function editAvatar(id) {
+  const av = allAvatars.find(a => a.id === id);
+  if (!av) return;
+
+  editingAvatarId = id;
+
+  // Load values into form
+  newState.faceColor  = av.face_color || '#FFDABB';
+  newState.hairStyle  = av.hair_style || 'short';
+  newState.hairColor  = av.hair_color || '#3D2B1F';
+  newState.eyeStyle   = av.eye_style  || 'normal';
+  newState.accessory  = av.accessory  || 'none';
+  newState.outfit     = av.outfit     || 'casual';
+  newState.expression = av.expression || 'happy';
+  newState.motion     = av.motion     || 'bounce';
+
+  document.getElementById('newAvatarName').value = av.name || '';
+  document.getElementById('newAvatarNameDisplay').textContent = av.name || 'アバター';
+  document.getElementById('newExprDisplay').textContent = EXPR_EMOJI[newState.expression] || '😄';
+  document.getElementById('newMotionLabel').textContent = MOTION_LABEL[newState.motion] || 'ジャンプ中';
+  document.getElementById('saveBtnLabel').textContent = '変更を保存';
+  document.getElementById('editingBanner').style.display = 'block';
+  document.getElementById('editingName').textContent = `「${av.name || 'アバター'}」を編集しています`;
+
+  refreshNewUI();
+  switchTab('create');
+  startNewPreview();
+}
+
+function cancelEdit() {
+  editingAvatarId = null;
+  document.getElementById('editingBanner').style.display = 'none';
+  document.getElementById('saveBtnLabel').textContent = 'ストックに保存';
+  resetForm();
+}
+
+// ===== Delete =====
+function openDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('deleteModalDesc').textContent = `「${name}」を削除します。この操作は取り消せません。`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+  deleteTargetId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+
+  // IDを先に取得してからモーダルを閉じる
+  const targetId = deleteTargetId;
+  closeDeleteModal();
+
+  // ボタンを無効化して二重押しを防ぐ
+  const card = document.getElementById('avcard_' + targetId);
+  if (card) {
+    card.style.opacity = '0.4';
+    card.style.pointerEvents = 'none';
+  }
+
+  try {
+    const res = await fetch(`tables/avatars/${targetId}`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 204) throw new Error('delete failed: ' + res.status);
+
+    // 成功したらUIから削除
+    allAvatars = allAvatars.filter(a => a.id !== targetId);
+    renderAvatarGrid();
+    showToast('🗑️ アバターを削除しました');
+  } catch(e) {
+    // 失敗したら元に戻す
+    if (card) {
+      card.style.opacity = '';
+      card.style.pointerEvents = '';
+    }
+    showToast('⚠️ 削除に失敗しました。もう一度お試しください');
+  }
+}
+
+// ===== Save Avatar =====
+async function saveAvatar() {
+  const name = document.getElementById('newAvatarName').value.trim() || 'アバター';
+
+  const saveBtn = document.querySelector('.form-actions .btn-primary');
+  const saveLabelEl = document.getElementById('saveBtnLabel');
+  const originalLabel = saveLabelEl ? saveLabelEl.textContent : 'ストックに保存';
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+
+  try {
+    if (editingAvatarId) {
+      // 編集：PUT に id を含めて送る
+      const payload = {
+        id:         editingAvatarId,
+        sender_id:  senderId,
+        name:       name,
+        face_color: newState.faceColor,
+        hair_style: newState.hairStyle,
+        hair_color: newState.hairColor,
+        eye_style:  newState.eyeStyle,
+        accessory:  newState.accessory,
+        outfit:     newState.outfit,
+        expression: newState.expression,
+        motion:     newState.motion
+      };
+      const res = await fetch(`tables/avatars/${editingAvatarId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('PUT failed: ' + res.status);
+
+      editingAvatarId = null;
+      document.getElementById('editingBanner').style.display = 'none';
+      showToast('✏️ アバターを更新しました！');
+    } else {
+      // 新規：POST
+      const payload = {
+        sender_id:  senderId,
+        name:       name,
+        face_color: newState.faceColor,
+        hair_style: newState.hairStyle,
+        hair_color: newState.hairColor,
+        eye_style:  newState.eyeStyle,
+        accessory:  newState.accessory,
+        outfit:     newState.outfit,
+        expression: newState.expression,
+        motion:     newState.motion
+      };
+      const res = await fetch('tables/avatars', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('POST failed: ' + res.status);
+
+      showToast('🎉 アバターを保存しました！');
+    }
+
+    await loadAvatars();
+    switchTab('list');
+    resetForm();
+
+  } catch(e) {
+    console.error('saveAvatar error:', e);
+    showToast('⚠️ 保存に失敗しました（' + e.message + '）');
+    // ボタンを元に戻す
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = `<i class="fas fa-save"></i> <span id="saveBtnLabel">${originalLabel}</span>`;
+    return;
+  }
+
+  // 成功時もボタンをリセット
+  saveBtn.disabled = false;
+  saveBtn.innerHTML = '<i class="fas fa-save"></i> <span id="saveBtnLabel">ストックに保存</span>';
+}
+
+// ===== Form helpers =====
+function setNew(key, val, el) {
+  newState[key] = val;
+  const rowMap = {
+    faceColor:'newFaceColorRow', hairStyle:'newHairStyleRow', hairColor:'newHairColorRow',
+    eyeStyle:'newEyeStyleRow', accessory:'newAccessoryRow', outfit:'newOutfitRow'
+  };
+  const rowId = rowMap[key];
+  if (rowId) {
+    document.querySelectorAll(`#${rowId} .opt-btn, #${rowId} .color-swatch`).forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  updateNewPreview();
+}
+
+function setNewExpr(val, el) {
+  newState.expression = val;
+  document.querySelectorAll('.expr-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('newExprDisplay').textContent = EXPR_EMOJI[val] || '😄';
+  updateNewPreview();
+}
+
+function setNewMotion(val, el) {
+  newState.motion = val;
+  document.querySelectorAll('.motion-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('newMotionLabel').textContent = MOTION_LABEL[val];
+  startNewPreview();
+}
+
+function updateNewPreview() {
+  const name = document.getElementById('newAvatarName').value.trim() || 'アバター';
+  document.getElementById('newAvatarNameDisplay').textContent = name;
+}
+
+function refreshNewUI() {
+  const s = newState;
+  const rows = [
+    {id:'newFaceColorRow',  key:'faceColor'},
+    {id:'newHairStyleRow',  key:'hairStyle'},
+    {id:'newHairColorRow',  key:'hairColor'},
+    {id:'newEyeStyleRow',   key:'eyeStyle'},
+    {id:'newAccessoryRow',  key:'accessory'},
+    {id:'newOutfitRow',     key:'outfit'},
+  ];
+  rows.forEach(r => {
+    document.querySelectorAll(`#${r.id} .opt-btn, #${r.id} .color-swatch`).forEach(el => {
+      el.classList.toggle('active', el.dataset.val === s[r.key]);
+    });
+  });
+  document.querySelectorAll('.expr-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.expression));
+  document.querySelectorAll('.motion-btn').forEach(b => b.classList.toggle('active', b.dataset.val === s.motion));
+  document.getElementById('newExprDisplay').textContent = EXPR_EMOJI[s.expression] || '😄';
+  document.getElementById('newMotionLabel').textContent = MOTION_LABEL[s.motion];
+}
+
+function resetForm() {
+  newState.faceColor='#FFDABB'; newState.hairStyle='short'; newState.hairColor='#3D2B1F';
+  newState.eyeStyle='normal'; newState.accessory='none'; newState.outfit='casual';
+  newState.expression='happy'; newState.motion='bounce';
+  document.getElementById('newAvatarName').value = '';
+  document.getElementById('newAvatarNameDisplay').textContent = 'アバター';
+  document.getElementById('newExprDisplay').textContent = '😄';
+  document.getElementById('newMotionLabel').textContent = 'ジャンプ中';
+  refreshNewUI();
+  startNewPreview();
+}
+
+// ===== New Avatar Preview Animation =====
+function startNewPreview() {
+  if (newAnimFrame) cancelAnimationFrame(newAnimFrame);
+  newMotionTime = 0;
+  const canvas = document.getElementById('newAvatarCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function tick() {
+    newMotionTime += 0.055;
+    let yOff=0, rot=0, sc=1;
+    const m = newState.motion;
+    if (m==='bounce')    yOff = Math.sin(newMotionTime*2.5)*10;
+    else if (m==='wave') { yOff=Math.sin(newMotionTime*2)*5; rot=Math.sin(newMotionTime*3)*0.07; }
+    else if (m==='spin') rot = newMotionTime*0.05;
+    else if (m==='heartbeat') sc = 1+Math.abs(Math.sin(newMotionTime*3))*0.1;
+    else if (m==='tada') { yOff=Math.sin(newMotionTime*4)*7; rot=Math.sin(newMotionTime*5)*0.09; sc=1+Math.abs(Math.sin(newMotionTime*4))*0.07; }
+
+    drawNewAvatar(ctx, 180, 180, yOff, sc, rot);
+    newAnimFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function drawNewAvatar(ctx, W, H, yOff=0, sc=1, rot=0) {
+  const s = newState;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(W/2, H/2+yOff);
+  ctx.rotate(rot);
+  ctx.scale(sc,sc);
+  ctx.translate(-W/2,-H/2);
+
+  const outfitColors={casual:'#7EC8E3',formal:'#4A5568',dress:'#FF9FB2',yukata:'#6B8E6E'};
+  const bodyColor=outfitColors[s.outfit]||'#7EC8E3';
+
+  // Body
+  ctx.beginPath(); ctx.ellipse(90,148,34,26,0,0,Math.PI*2); ctx.fillStyle=bodyColor; ctx.fill();
+  // Neck
+  ctx.beginPath(); ctx.rect(82,118,16,18); ctx.fillStyle=s.faceColor; ctx.fill();
+  // Head
+  ctx.beginPath(); ctx.arc(90,100,40,0,Math.PI*2); ctx.fillStyle=s.faceColor; ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  drawHairS(ctx,s.hairStyle,s.hairColor);
+  drawEyesS(ctx,s.eyeStyle,s.expression);
+
+  // Nose
+  ctx.beginPath(); ctx.arc(90,104,3,0,Math.PI);
+  ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  drawMouthS(ctx,s.expression);
+
+  // Cheeks
+  if(['love','shy','happy','celebrate'].includes(s.expression)){
+    ctx.beginPath(); ctx.ellipse(68,108,8,5,-0.2,0,Math.PI*2); ctx.fillStyle='rgba(255,150,150,0.35)'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(112,108,8,5,0.2,0,Math.PI*2); ctx.fill();
+  }
+
+  drawAccessoryS(ctx,s.accessory);
+  drawOutfitDetailsS(ctx,s.outfit,bodyColor);
+
+  ctx.restore();
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ===== ESC to close modal =====
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeDeleteModal(); });
+
+// ===== Init =====
+loadAvatars();
+startNewPreview();
+</script>
+</body>
+</html>

@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ギフトが届いています！ - Okuri-Bit</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: #0a0015;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: 'Noto Sans JP', 'Nunito', sans-serif;
+    }
+
+    /* ===== Intro Screen ===== */
+    #introScreen {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, #1a0030 0%, #0a0015 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 500;
+      transition: opacity 0.8s ease;
+    }
+    #introScreen.fade-out { opacity: 0; pointer-events: none; }
+
+    .star-field {
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle linear infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .intro-logo {
+      font-size: 1.4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 32px;
+      letter-spacing: 2px;
+    }
+
+    .gift-box-container {
+      position: relative;
+      cursor: pointer;
+      animation: float 2.5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+    .gift-box-svg {
+      width: 160px;
+      height: 160px;
+      filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.7));
+    }
+
+    .tap-hint {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 24px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .sender-badge {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      padding: 6px 20px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(255,107,157,0.5);
+    }
+
+    /* ===== Main Content ===== */
+    #mainContent {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(170deg, #1a0030 0%, #0d0020 40%, #000510 100%);
+    }
+    #mainContent.visible { display: block; }
+
+    /* Stage */
+    .gift-stage {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 40px;
+      overflow: hidden;
+    }
+
+    /* Spotlight */
+    .spotlight {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse at top, rgba(168,85,247,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* To / From */
+    .to-from {
+      text-align: center;
+      margin-bottom: 24px;
+      z-index: 2;
+      animation: slideInUp 0.7s ease forwards;
+    }
+    .to-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .from-name {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: white;
+    }
+    .from-name .highlight-name {
+      background: linear-gradient(90deg, #FF6B9D, #A855F7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Avatar Stage */
+    .avatar-performance {
+      z-index: 2;
+      position: relative;
+      margin-bottom: 0;
+    }
+
+    .avatar-glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,107,157,0.3) 0%, transparent 70%);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
+      50% { transform: translate(-50%,-50%) scale(1.2); opacity: 0.4; }
+    }
+
+    #mainAvatarCanvas {
+      width: 240px; height: 240px;
+      position: relative; z-index: 2;
+      filter: drop-shadow(0 0 20px rgba(255,107,157,0.4));
+    }
+
+    /* Avatar Name Bubble */
+    .avatar-name-bubble {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: -8px;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* Speech Bubble */
+    .speech-bubble {
+      position: relative;
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 18px 22px;
+      max-width: 340px;
+      margin: 16px 0;
+      z-index: 2;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: fadeInScale 0.6s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      top: -14px; left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-bottom-color: rgba(255,255,255,0.95);
+    }
+    .speech-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #2D2D2D;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* Gift Reveal */
+    .gift-reveal-area {
+      z-index: 2;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: slideInUp 0.7s 0.6s ease both;
+    }
+
+    .gift-reveal-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 28px;
+      padding: 28px 24px;
+      margin-bottom: 20px;
+    }
+
+    .gift-big-emoji {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 12px;
+      animation: bounce 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 4px 16px rgba(255,215,0,0.5));
+    }
+
+    .gift-reveal-name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 6px;
+    }
+
+    .gift-reveal-price {
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #FFD700, #FF8C42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Reaction Section */
+    .reaction-section {
+      z-index: 2;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      padding-bottom: 40px;
+    }
+
+    .reaction-title {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    .reaction-emojis {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .reaction-emoji-btn {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .reaction-emoji-btn:hover, .reaction-emoji-btn.selected {
+      transform: scale(1.2);
+      border-color: var(--primary);
+      background: rgba(255,107,157,0.2);
+      box-shadow: 0 0 20px rgba(255,107,157,0.4);
+    }
+
+    .reaction-msg-area {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 14px 16px;
+      color: white;
+      font-size: 0.9rem;
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+      resize: none;
+      min-height: 90px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .reaction-msg-area:focus { border-color: var(--primary); }
+    .reaction-msg-area::placeholder { color: rgba(255,255,255,0.35); }
+
+    .react-send-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(255,107,157,0.45);
+      transition: all 0.25s;
+      font-family: inherit;
+    }
+    .react-send-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(255,107,157,0.55); }
+    .react-send-btn:disabled { opacity: 0.6; pointer-events: none; }
+
+    /* Sent Reaction Confirmation */
+    .reaction-sent {
+      display: none;
+      text-align: center;
+      padding: 28px;
+      animation: fadeInScale 0.5s ease forwards;
+    }
+    .reaction-sent.show { display: block; }
+    .reaction-sent-icon { font-size: 3.5rem; margin-bottom: 12px; }
+    .reaction-sent-title { font-size: 1.2rem; font-weight: 800; color: white; margin-bottom: 8px; }
+    .reaction-sent-sub { color: rgba(255,255,255,0.55); font-size: 0.88rem; }
+
+    /* Floating hearts / stars around avatar */
+    .float-decoration {
+      position: absolute;
+      pointer-events: none;
+      z-index: 3;
+      animation: floatDeco ease-in-out infinite;
+    }
+    @keyframes floatDeco {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-15px) scale(1.1); opacity: 1; }
+    }
+
+    /* Opening animation overlay */
+    #openOverlay {
+      position: fixed; inset: 0;
+      background: white;
+      z-index: 300;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #openOverlay.flash {
+      animation: flashAnim 0.6s ease forwards;
+    }
+    @keyframes flashAnim {
+      0% { opacity: 0; }
+      30% { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+
+    /* Loading State */
+    #loadingState {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at center, #1a0030 0%, #0a0015 100%);
+    }
+    .load-spinner {
+      width: 56px; height: 56px;
+      border: 5px solid rgba(255,255,255,0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    /* Error state */
+    #errorState { display:none; }
+    #errorState.show { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; text-align:center; padding:40px; }
+
+    /* ===== Set Gift Choice UI ===== */
+    .set-choice-area {
+      width: 100%;
+      text-align: center;
+    }
+
+    .set-choice-label {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .set-choice-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .set-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 400px) {
+      .set-cards-grid { grid-template-columns: 1fr; gap: 10px; }
+    }
+
+    .set-item-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(16px);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 18px 10px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .set-item-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(168,85,247,0.15));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .set-item-card:hover {
+      border-color: rgba(255,107,157,0.5);
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 12px 36px rgba(255,107,157,0.25);
+    }
+    .set-item-card:hover::before { opacity: 1; }
+    .set-item-card.selected {
+      border-color: #FF6B9D;
+      background: rgba(255,107,157,0.15);
+      transform: translateY(-6px) scale(1.05);
+      box-shadow: 0 16px 48px rgba(255,107,157,0.4);
+    }
+    .set-item-card.selected::before { opacity: 1; }
+    .set-item-card.not-selected {
+      opacity: 0.45;
+      transform: scale(0.96);
+      pointer-events: none;
+    }
+
+    .set-check-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: white;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .set-item-card.selected .set-check-badge {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .set-item-emoji {
+      font-size: 2.6rem;
+      filter: drop-shadow(0 3px 8px rgba(255,215,0,0.4));
+      line-height: 1;
+    }
+
+    .set-item-name {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .set-item-desc {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .set-item-price {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #FFD700, #FF8C42);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .set-decide-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #FF6B9D, #A855F7);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(255,107,157,0.45);
+      transition: all 0.25s;
+      font-family: inherit;
+      opacity: 0.4;
+      pointer-events: none;
+      margin-bottom: 20px;
+    }
+    .set-decide-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .set-decide-btn.active:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(255,107,157,0.55);
+    }
+
+    /* Set result reveal */
+    .set-result-reveal {
+      display: none;
+      animation: fadeInScale 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .set-result-reveal.show { display: block; }
+    @keyframes fadeInScale {
+      from { opacity:0; transform: scale(0.7); }
+      to   { opacity:1; transform: scale(1); }
+    }
+    @keyframes slideInUp {
+      from { opacity:0; transform: translateY(30px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Flash overlay -->
+<div id="openOverlay"></div>
+
+<!-- Loading State -->
+<div id="loadingState">
+  <div class="load-spinner"></div>
+  <div style="color:rgba(255,255,255,0.6); font-weight:600;">ギフトを読み込み中...</div>
+</div>
+
+<!-- Error State -->
+<div id="errorState">
+  <div style="font-size:3rem; margin-bottom:16px;">😢</div>
+  <h2 style="color:white; margin-bottom:8px;">ギフトが見つかりませんでした</h2>
+  <p style="color:rgba(255,255,255,0.5); font-size:0.9rem; margin-bottom:24px;">URLが正しいかご確認ください</p>
+  <a href="index.html" class="btn btn-primary">トップへ戻る</a>
+</div>
+
+<!-- Intro Screen -->
+<div id="introScreen" style="display:none;">
+  <div class="star-field" id="starField"></div>
+  <div class="intro-logo">✦ Okuri Bit ✦</div>
+  <div style="position:relative;">
+    <div class="sender-badge" id="introBadge">??? からギフトが届いています</div>
+    <div class="gift-box-container" onclick="openGift()">
+      <svg class="gift-box-svg" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Box body -->
+        <rect x="20" y="72" width="120" height="72" rx="10" fill="url(#boxGrad)"/>
+        <!-- Box lid -->
+        <rect x="12" y="54" width="136" height="26" rx="8" fill="url(#lidGrad)"/>
+        <!-- Ribbon vertical on body -->
+        <rect x="72" y="72" width="16" height="72" fill="url(#ribbonGrad)" opacity="0.9"/>
+        <!-- Ribbon horizontal on lid -->
+        <rect x="12" y="63" width="136" height="8" fill="url(#ribbonGrad)" opacity="0.9"/>
+        <!-- Bow top -->
+        <ellipse cx="80" cy="48" rx="20" ry="12" fill="url(#bowGrad)" transform="rotate(-25 80 48)"/>
+        <ellipse cx="80" cy="48" rx="20" ry="12" fill="url(#bowGrad)" transform="rotate(25 80 48)"/>
+        <circle cx="80" cy="50" r="9" fill="#FF3B7A"/>
+        <!-- Stars -->
+        <text x="32" y="116" font-size="18" opacity="0.7">⭐</text>
+        <text x="106" y="108" font-size="14" opacity="0.6">✨</text>
+        <text x="50" y="102" font-size="12" opacity="0.5">💫</text>
+        <!-- Gradients -->
+        <defs>
+          <linearGradient id="boxGrad" x1="20" y1="72" x2="140" y2="144" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#FF6B9D"/>
+            <stop offset="100%" stop-color="#CC3D7A"/>
+          </linearGradient>
+          <linearGradient id="lidGrad" x1="12" y1="54" x2="148" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#FF8FB0"/>
+            <stop offset="100%" stop-color="#E05590"/>
+          </linearGradient>
+          <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+            <stop offset="0%" stop-color="#FFD700"/>
+            <stop offset="100%" stop-color="#FF8C42"/>
+          </linearGradient>
+          <linearGradient id="bowGrad" x1="60" y1="36" x2="100" y2="60" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#FF6B9D"/>
+            <stop offset="100%" stop-color="#A855F7"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+  <div class="tap-hint">タップして開ける 🎁</div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent">
+  <div class="gift-stage">
+    <div class="spotlight"></div>
+
+    <!-- Decorations -->
+    <div class="float-decoration" style="top:10%; left:10%; font-size:1.4rem; animation-duration:3s;">💖</div>
+    <div class="float-decoration" style="top:15%; right:12%; font-size:1.2rem; animation-duration:2.5s; animation-delay:0.5s;">⭐</div>
+    <div class="float-decoration" style="top:8%; left:35%; font-size:1rem; animation-duration:4s; animation-delay:1s;">✨</div>
+    <div class="float-decoration" style="top:20%; right:25%; font-size:1.6rem; animation-duration:3.5s; animation-delay:0.3s;">🌸</div>
+
+    <!-- To / From -->
+    <div class="to-from">
+      <div class="to-text">✦ GIFT FOR YOU ✦</div>
+      <div class="from-name">
+        <span id="recipientDisplayName" class="highlight-name">あなた</span>さんへ
+      </div>
+      <div style="color:rgba(255,255,255,0.4); font-size:0.8rem; margin-top:4px;">
+        from <span id="senderDisplayName" style="color:rgba(255,255,255,0.7); font-weight:700;">?</span>
+      </div>
+    </div>
+
+    <!-- Avatar Performance -->
+    <div class="avatar-performance">
+      <div class="avatar-glow"></div>
+      <canvas id="mainAvatarCanvas" width="240" height="240"></canvas>
+    </div>
+    <div class="avatar-name-bubble" id="avatarNameBubble">🌟 アバター</div>
+
+    <!-- Speech Bubble -->
+    <div class="speech-bubble" id="speechBubble">
+      <div class="speech-text" id="speechText">読み込み中...</div>
+    </div>
+
+    <!-- Gift Reveal -->
+    <div class="gift-reveal-area">
+      <div id="giftRevealContent">
+        <!-- JSで動的にレンダリング -->
+      </div>
+
+      <!-- Reaction Section -->
+      <div class="reaction-section">
+        <div class="reaction-title">💬 SEND YOUR REACTION</div>
+        <div class="reaction-emojis" id="reactionEmojis">
+          <button class="reaction-emoji-btn" data-emoji="🥰" onclick="selectReactionEmoji('🥰',this)">🥰</button>
+          <button class="reaction-emoji-btn" data-emoji="😭" onclick="selectReactionEmoji('😭',this)">😭</button>
+          <button class="reaction-emoji-btn" data-emoji="🙏" onclick="selectReactionEmoji('🙏',this)">🙏</button>
+          <button class="reaction-emoji-btn" data-emoji="😍" onclick="selectReactionEmoji('😍',this)">😍</button>
+          <button class="reaction-emoji-btn" data-emoji="🎉" onclick="selectReactionEmoji('🎉',this)">🎉</button>
+          <button class="reaction-emoji-btn" data-emoji="💖" onclick="selectReactionEmoji('💖',this)">💖</button>
+        </div>
+
+        <div id="reactionForm">
+          <textarea
+            class="reaction-msg-area"
+            id="reactionMsg"
+            placeholder="メッセージを書いてね... (任意)"
+            maxlength="200"
+            rows="3"
+          ></textarea>
+          <button class="react-send-btn" id="reactSendBtn" onclick="sendReaction()">
+            💌 リアクションを送る
+          </button>
+        </div>
+
+        <div class="reaction-sent" id="reactionSentMsg">
+          <div class="reaction-sent-icon" id="sentReactionIcon">💖</div>
+          <div class="reaction-sent-title">リアクションを送りました！</div>
+          <div class="reaction-sent-sub">送り手に届きます✨</div>
+          <div style="margin-top:18px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+            <a href="community.html" style="background:linear-gradient(135deg,#A855F7,#7c3aed); color:white; padding:12px 28px; border-radius:50px; font-size:0.88rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+              <i class="fas fa-users"></i> もらった体験を投稿する
+            </a>
+            <a href="gift.html" style="color:rgba(255,255,255,0.55); font-size:0.8rem; text-decoration:none;">
+              <i class="fas fa-gift"></i> ギフトを贈る →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+let orderData = null;
+let avatarState = {};
+let selectedReactionEmoji = '';
+let animFrame = null;
+let motionTime = 0;
+
+// ===== Get Order ID from URL =====
+// LINE内部ブラウザ等でクエリパラメータが消える対策:
+// 1) URLSearchParams で取得を試みる
+// 2) 失敗した場合は href 全体から "id=xxxx" を正規表現で抽出する
+function extractOrderId() {
+  // Step 1: 通常のクエリパラメータ
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get('id');
+    if (v) return v;
+  } catch(e) {}
+
+  // Step 2: location.search が空でも href にクエリが残っている場合
+  try {
+    const m = window.location.href.match(/[?&]id=([^&&#]+)/);
+    if (m && m[1]) return decodeURIComponent(m[1]);
+  } catch(e) {}
+
+  // Step 3: hash に混入しているケース (#?id=xxx / #id=xxx)
+  try {
+    const m = window.location.hash.match(/[?&]id=([^&&#]+)/);
+    if (m && m[1]) return decodeURIComponent(m[1]);
+  } catch(e) {}
+
+  return null;
+}
+const orderId = extractOrderId();
+
+// demo パラメータも同様に fallback 取得
+function extractParam(key) {
+  try {
+    const v = new URLSearchParams(window.location.search).get(key);
+    if (v !== null) return v;
+  } catch(e) {}
+  try {
+    const m = window.location.href.match(new RegExp('[?&]' + key + '=([^&&#]*)'));
+    if (m) return decodeURIComponent(m[1]);
+  } catch(e) {}
+  try {
+    const m = window.location.hash.match(new RegExp('[?&]' + key + '=([^&&#]*)'));
+    if (m) return decodeURIComponent(m[1]);
+  } catch(e) {}
+  return null;
+}
+const isDemoMode = extractParam('demo') === '1';
+
+// ===== Load Order =====
+async function loadOrder() {
+  // demo=1 の場合はデモデータを直接表示
+  if (isDemoMode) { loadDemoOrder(); return; }
+  if (!orderId) { showError(); return; }
+
+  // Try to load from DB
+  try {
+    const res = await fetch(`tables/orders?search=${orderId}`);
+    const data = await res.json();
+
+    if (data.data && data.data.length > 0) {
+      orderData = data.data.find(o => o.id === orderId);
+    }
+
+    // If not found in DB, check sessionStorage (for demo)
+    if (!orderData) {
+      const lastId = sessionStorage.getItem('lastOrderId');
+      if (lastId && lastId === orderId) {
+        // Reconstruct from sessionStorage
+        const gift = JSON.parse(sessionStorage.getItem('selectedGift') || '{}');
+        const av = JSON.parse(sessionStorage.getItem('avatarData') || '{}');
+        orderData = {
+          id: orderId,
+          sender_name: sessionStorage.getItem('senderName') || 'だれか',
+          recipient_name: sessionStorage.getItem('recipientName') || 'あなた',
+          gift_name: gift.name || 'ギフト',
+          gift_emoji: gift.emoji || '🎁',
+          gift_price: gift.price || 0,
+          gift_is_set: gift.isSet ? 1 : 0,
+          gift_set_items: gift.isSet ? JSON.stringify(gift.setItems || []) : '',
+          avatar_data: JSON.stringify(av),
+          expression: av.expression || 'happy',
+          motion: av.motion || 'bounce',
+          message: 'テストメッセージです✨',
+          status: 'pending'
+        };
+      }
+    }
+
+    if (!orderData) { showError(); return; }
+
+    // Mark as opened
+    try {
+      await fetch(`tables/orders/${orderData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'opened', opened_at: Date.now() })
+      });
+    } catch (e) {}
+
+    showIntro();
+  } catch (e) {
+    // Fallback to sessionStorage
+    const lastId = sessionStorage.getItem('lastOrderId');
+    if (lastId === orderId) {
+      const gift = JSON.parse(sessionStorage.getItem('selectedGift') || '{}');
+      const av = JSON.parse(sessionStorage.getItem('avatarData') || '{}');
+      orderData = {
+        id: orderId,
+        sender_name: sessionStorage.getItem('senderName') || 'だれか',
+        recipient_name: sessionStorage.getItem('recipientName') || 'あなた',
+        gift_name: gift.name || 'ギフト',
+        gift_emoji: gift.emoji || '🎁',
+        gift_price: gift.price || 0,
+        gift_is_set: gift.isSet ? 1 : 0,
+        gift_set_items: gift.isSet ? JSON.stringify(gift.setItems || []) : '',
+        avatar_data: JSON.stringify(av),
+        expression: av.expression || 'happy',
+        motion: av.motion || 'bounce',
+        message: sessionStorage.getItem('demoMessage') || 'ありがとう！いつも笑顔でいてくれてありがとう💕',
+        status: 'pending'
+      };
+      showIntro();
+    } else {
+      showError();
+    }
+  }
+}
+
+// ===== Demo Order (demo=1 アクセス時) =====
+function loadDemoOrder() {
+  orderData = {
+    id: 'demo',
+    sender_name: 'まこと',
+    recipient_name: 'あなた',
+    gift_name: 'アロマキャンドルセット',
+    gift_emoji: '🌸',
+    gift_price: 2800,
+    gift_is_set: 0,
+    gift_set_items: '',
+    avatar_data: JSON.stringify({
+      faceColor:'#FFDABB', hairStyle:'long', hairColor:'#3D2B1F',
+      eyeStyle:'sparkle', accessory:'ribbon', outfit:'dress',
+      expression:'cheer', motion:'bounce', name:'コトネ'
+    }),
+    expression: 'cheer',
+    motion: 'bounce',
+    message: 'いつも応援してるよ！💪\nこれからも一緒に頑張ろうね🎁',
+    status: 'demo'
+  };
+  showIntro();
+}
+
+// ===== Show Intro =====
+function showIntro() {
+  document.getElementById('loadingState').style.display = 'none';
+  const intro = document.getElementById('introScreen');
+  intro.style.display = 'flex';
+
+  // Stars
+  initStars();
+
+  // Badge
+  document.getElementById('introBadge').textContent =
+    (orderData.sender_name || '???') + ' からギフトが届いています';
+}
+
+function initStars() {
+  const sf = document.getElementById('starField');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      width: ${size}px;
+      height: ${size}px;
+      animation-duration: ${1 + Math.random() * 3}s;
+      animation-delay: ${Math.random() * 3}s;
+    `;
+    sf.appendChild(s);
+  }
+}
+
+// ===== Open Gift =====
+function openGift() {
+  // Flash effect
+  const overlay = document.getElementById('openOverlay');
+  overlay.classList.add('flash');
+  setTimeout(() => overlay.classList.remove('flash'), 600);
+
+  // Confetti burst
+  launchConfetti();
+
+  // Transition
+  const intro = document.getElementById('introScreen');
+  intro.classList.add('fade-out');
+  setTimeout(() => {
+    intro.style.display = 'none';
+    showMainContent();
+  }, 800);
+}
+
+// ===== Show Main Content =====
+function showMainContent() {
+  const main = document.getElementById('mainContent');
+  main.classList.add('visible');
+
+  // Parse avatar data
+  try {
+    avatarState = JSON.parse(orderData.avatar_data || '{}');
+  } catch (e) {
+    avatarState = {};
+  }
+
+  // Set defaults
+  avatarState.faceColor = avatarState.faceColor || '#FFDABB';
+  avatarState.hairStyle = avatarState.hairStyle || 'short';
+  avatarState.hairColor = avatarState.hairColor || '#3D2B1F';
+  avatarState.eyeStyle = avatarState.eyeStyle || 'normal';
+  avatarState.accessory = avatarState.accessory || 'none';
+  avatarState.outfit = avatarState.outfit || 'casual';
+  avatarState.expression = orderData.expression || avatarState.expression || 'happy';
+  avatarState.motion = orderData.motion || avatarState.motion || 'bounce';
+
+  // Populate content
+  document.getElementById('recipientDisplayName').textContent = orderData.recipient_name || 'あなた';
+  document.getElementById('senderDisplayName').textContent = orderData.sender_name || '?';
+  document.getElementById('speechText').textContent = orderData.message || '...';
+  document.getElementById('avatarNameBubble').textContent = '🌟 ' + (avatarState.name || 'アバター');
+
+  // Render gift reveal area
+  const isSet = !!(orderData.gift_is_set && orderData.gift_is_set != '0');
+  if (isSet) {
+    renderSetChoice();
+  } else {
+    renderSingleGift();
+  }
+
+  // Start avatar animation
+  startAvatarAnimation();
+
+  // Continuous confetti
+  setTimeout(() => launchConfetti(20), 800);
+  setTimeout(() => launchConfetti(15), 1600);
+}
+
+// ===== Single Gift Render =====
+function renderSingleGift() {
+  const container = document.getElementById('giftRevealContent');
+  container.innerHTML = `
+    <div class="gift-reveal-card" style="animation: fadeInScale 0.7s cubic-bezier(0.34,1.56,0.64,1) both;">
+      <span class="gift-big-emoji">${orderData.gift_emoji || '🎁'}</span>
+      <div class="gift-reveal-name">${orderData.gift_name || 'ギフト'}</div>
+      <div class="gift-reveal-price">¥${(orderData.gift_price || 0).toLocaleString()}</div>
+    </div>
+  `;
+}
+
+// ===== Set Gift Choice Render =====
+let selectedSetIndex = -1;
+
+function renderSetChoice() {
+  let setItems = [];
+  try {
+    setItems = JSON.parse(orderData.gift_set_items || '[]');
+  } catch(e) { setItems = []; }
+
+  // Fallback — use gift_emoji characters if no set_items
+  if (!setItems.length) {
+    renderSingleGift(); return;
+  }
+
+  const price = orderData.gift_price || 0;
+  const container = document.getElementById('giftRevealContent');
+
+  const cardsHtml = setItems.map((item, i) => `
+    <div class="set-item-card" id="setCard${i}" onclick="selectSetItem(${i})">
+      <div class="set-check-badge">✓</div>
+      <span class="set-item-emoji">${item.emoji || '🎁'}</span>
+      <div class="set-item-name">${item.name || 'ギフト' + (i+1)}</div>
+      ${item.desc ? `<div class="set-item-desc">${item.desc}</div>` : ''}
+      <div class="set-item-price">¥${(item.price || price).toLocaleString()}</div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="set-choice-area" style="animation: slideInUp 0.7s 0.2s ease both; opacity:0; animation-fill-mode:both;">
+      <div class="set-choice-label">∴ 3択セットギフト</div>
+      <div class="set-choice-title">🎁 3つのギフトから<br>1つ選んでね🥰</div>
+      <div class="set-cards-grid">${cardsHtml}</div>
+      <button class="set-decide-btn" id="setDecideBtn" onclick="decideSetChoice()">
+        ✨ これにする！
+      </button>
+    </div>
+    <div class="set-result-reveal" id="setResultReveal">
+      <div class="gift-reveal-card">
+        <span class="gift-big-emoji" id="chosenEmoji">🎁</span>
+        <div class="gift-reveal-name" id="chosenName">ギフト</div>
+        <div class="gift-reveal-price" id="chosenPrice">¥0</div>
+      </div>
+    </div>
+  `;
+}
+
+function selectSetItem(index) {
+  selectedSetIndex = index;
+  const cards = document.querySelectorAll('.set-item-card');
+  cards.forEach((card, i) => {
+    card.classList.remove('selected', 'not-selected');
+    if (i === index) card.classList.add('selected');
+    else card.classList.add('not-selected');
+  });
+  const btn = document.getElementById('setDecideBtn');
+  if (btn) btn.classList.add('active');
+}
+
+function decideSetChoice() {
+  if (selectedSetIndex < 0) return;
+
+  let setItems = [];
+  try { setItems = JSON.parse(orderData.gift_set_items || '[]'); } catch(e) {}
+  const chosen = setItems[selectedSetIndex];
+  if (!chosen) return;
+
+  // Hide choice area with animation
+  const choiceArea = document.querySelector('.set-choice-area');
+  if (choiceArea) {
+    choiceArea.style.transition = 'opacity 0.4s, transform 0.4s';
+    choiceArea.style.opacity = '0';
+    choiceArea.style.transform = 'scale(0.9)';
+  }
+
+  setTimeout(() => {
+    // Hide choice, show result
+    if (choiceArea) choiceArea.style.display = 'none';
+
+    const resultEl = document.getElementById('setResultReveal');
+    document.getElementById('chosenEmoji').textContent = chosen.emoji || '🎁';
+    document.getElementById('chosenName').textContent = chosen.name || 'ギフト';
+    document.getElementById('chosenPrice').textContent = '¥' + (chosen.price || orderData.gift_price || 0).toLocaleString();
+    resultEl.classList.add('show');
+
+    // Save chosen item to order
+    try {
+      fetch(`tables/orders/${orderData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chosen_item_name: chosen.name,
+          chosen_item_emoji: chosen.emoji,
+          chosen_item_index: selectedSetIndex,
+          status: 'chosen'
+        })
+      });
+    } catch(e) {}
+
+    launchConfetti(40);
+    showToast('🎉 ' + (chosen.name || 'ギフト') + 'を選びました！');
+  }, 450);
+}
+
+// ===== Avatar Drawing (same as avatar.html) =====
+const mainCanvas = document.getElementById('mainAvatarCanvas');
+const mCtx = mainCanvas.getContext('2d');
+
+function drawMainAvatar(yOffset = 0, sc = 1, rotation = 0) {
+  const s = avatarState;
+  mCtx.clearRect(0, 0, 240, 240);
+  mCtx.save();
+  mCtx.translate(120, 120 + yOffset);
+  mCtx.rotate(rotation);
+  mCtx.scale(sc, sc);
+  mCtx.translate(-120, -120);
+
+  const outfitColors = { casual: '#7EC8E3', formal: '#4A5568', dress: '#FF9FB2', yukata: '#6B8E6E' };
+  const bodyColor = outfitColors[s.outfit] || '#7EC8E3';
+
+  // Body
+  mCtx.beginPath();
+  mCtx.ellipse(120, 196, 45, 34, 0, 0, Math.PI * 2);
+  mCtx.fillStyle = bodyColor;
+  mCtx.fill();
+
+  // Neck
+  mCtx.beginPath();
+  mCtx.rect(111, 158, 18, 24);
+  mCtx.fillStyle = s.faceColor;
+  mCtx.fill();
+
+  // Head
+  mCtx.beginPath();
+  mCtx.arc(120, 132, 52, 0, Math.PI * 2);
+  mCtx.fillStyle = s.faceColor;
+  mCtx.fill();
+  mCtx.strokeStyle = 'rgba(0,0,0,0.06)';
+  mCtx.lineWidth = 2;
+  mCtx.stroke();
+
+  // Hair
+  drawMainHair(s.hairStyle, s.hairColor);
+
+  // Eyes
+  drawMainEyes(s.eyeStyle, s.expression);
+
+  // Nose
+  mCtx.beginPath();
+  mCtx.arc(120, 138, 4, 0, Math.PI);
+  mCtx.strokeStyle = 'rgba(0,0,0,0.15)';
+  mCtx.lineWidth = 2;
+  mCtx.stroke();
+
+  // Mouth
+  drawMainMouth(s.expression);
+
+  // Cheeks
+  if (['love','shy','happy','celebrate'].includes(s.expression)) {
+    mCtx.beginPath(); mCtx.ellipse(92, 144, 10, 7, -0.2, 0, Math.PI*2);
+    mCtx.fillStyle = 'rgba(255,150,150,0.35)'; mCtx.fill();
+    mCtx.beginPath(); mCtx.ellipse(148, 144, 10, 7, 0.2, 0, Math.PI*2);
+    mCtx.fillStyle = 'rgba(255,150,150,0.35)'; mCtx.fill();
+  }
+
+  // Accessory
+  drawMainAccessory(s.accessory);
+
+  // Outfit details
+  drawMainOutfitDetails(s.outfit, bodyColor);
+
+  mCtx.restore();
+}
+
+function drawMainHair(style, color) {
+  mCtx.fillStyle = color;
+  if (style === 'short') {
+    mCtx.beginPath(); mCtx.arc(120, 118, 52, Math.PI, 0); mCtx.fill();
+    mCtx.beginPath(); mCtx.arc(120, 120, 52, -0.3, Math.PI + 0.3); mCtx.fill();
+  } else if (style === 'long') {
+    mCtx.beginPath(); mCtx.arc(120, 118, 52, Math.PI, 0); mCtx.fill();
+    mCtx.beginPath(); mCtx.ellipse(73, 155, 18, 38, -0.15, 0, Math.PI*2); mCtx.fill();
+    mCtx.beginPath(); mCtx.ellipse(167, 155, 18, 38, 0.15, 0, Math.PI*2); mCtx.fill();
+  } else if (style === 'wavy') {
+    mCtx.beginPath(); mCtx.arc(120, 118, 52, Math.PI, 0); mCtx.fill();
+    for (let i = 0; i < 4; i++) {
+      mCtx.beginPath();
+      mCtx.arc(76 + i * 28, 172 + Math.sin(i) * 8, 14, 0, Math.PI * 2);
+      mCtx.fill();
+    }
+  } else if (style === 'bun') {
+    mCtx.beginPath(); mCtx.arc(120, 118, 52, Math.PI + 0.3, -0.3); mCtx.fill();
+    mCtx.beginPath(); mCtx.arc(120, 80, 22, 0, Math.PI * 2); mCtx.fill();
+  } else if (style === 'hat') {
+    mCtx.beginPath(); mCtx.ellipse(120, 102, 52, 18, 0, 0, Math.PI * 2); mCtx.fill();
+    mCtx.beginPath(); mCtx.ellipse(120, 84, 36, 32, 0, 0, Math.PI * 2); mCtx.fill();
+    mCtx.beginPath(); mCtx.arc(144, 86, 6, 0, Math.PI * 2);
+    mCtx.fillStyle = '#FF6B9D'; mCtx.fill();
+  }
+}
+
+function drawMainEyes(style, expr) {
+  if (['happy','celebrate','cheer','excited'].includes(expr)) {
+    mCtx.beginPath(); mCtx.arc(101, 128, 9, Math.PI, 0); mCtx.strokeStyle='#333'; mCtx.lineWidth=3; mCtx.stroke();
+    mCtx.beginPath(); mCtx.arc(139, 128, 9, Math.PI, 0); mCtx.stroke();
+  } else if (expr === 'love') {
+    drawMainHeart(mCtx, 99, 122, 10);
+    drawMainHeart(mCtx, 137, 122, 10);
+  } else if (expr === 'cool') {
+    mCtx.fillStyle = '#222';
+    mCtx.beginPath(); mCtx.roundRect(88, 120, 26, 15, 7); mCtx.fill();
+    mCtx.beginPath(); mCtx.roundRect(126, 120, 26, 15, 7); mCtx.fill();
+    mCtx.beginPath(); mCtx.moveTo(114,128); mCtx.lineTo(126,128); mCtx.strokeStyle='#222'; mCtx.lineWidth=3; mCtx.stroke();
+  } else {
+    const eyeR = style === 'sleepy' ? 6 : 8;
+    const irisColor = style === 'sparkle' ? '#FF6B9D' : '#3B5EDB';
+    [101, 139].forEach(ex => {
+      mCtx.beginPath(); mCtx.ellipse(ex, 128, eyeR, eyeR*0.95, 0, 0, Math.PI*2);
+      mCtx.fillStyle='#fff'; mCtx.fill(); mCtx.strokeStyle='#333'; mCtx.lineWidth=2; mCtx.stroke();
+      mCtx.beginPath(); mCtx.arc(ex, 128, eyeR*0.55, 0, Math.PI*2); mCtx.fillStyle=irisColor; mCtx.fill();
+      mCtx.beginPath(); mCtx.arc(ex-3, 125, 2, 0, Math.PI*2); mCtx.fillStyle='white'; mCtx.fill();
+    });
+    if (style === 'sleepy') {
+      mCtx.beginPath(); mCtx.moveTo(93,120); mCtx.lineTo(109,120); mCtx.strokeStyle='#555'; mCtx.lineWidth=2.5; mCtx.stroke();
+      mCtx.beginPath(); mCtx.moveTo(131,120); mCtx.lineTo(147,120); mCtx.stroke();
+    }
+    if (style === 'sparkle') {
+      mCtx.fillStyle='#FFD700'; mCtx.font='12px serif';
+      mCtx.fillText('✦', 108, 114); mCtx.fillText('✦', 146, 112);
+    }
+  }
+}
+
+function drawMainHeart(ctx, x, y, size) {
+  ctx.save(); ctx.fillStyle='#FF4B6E';
+  ctx.beginPath();
+  ctx.moveTo(x, y+size*0.3);
+  ctx.bezierCurveTo(x,y-size*0.3,x-size,y-size*0.3,x-size,y+size*0.3);
+  ctx.bezierCurveTo(x-size,y+size*0.8,x,y+size*1.2,x,y+size*1.2);
+  ctx.bezierCurveTo(x,y+size*1.2,x+size,y+size*0.8,x+size,y+size*0.3);
+  ctx.bezierCurveTo(x+size,y-size*0.3,x,y-size*0.3,x,y+size*0.3);
+  ctx.fill(); ctx.restore();
+}
+
+function drawMainMouth(expr) {
+  mCtx.lineWidth = 3; mCtx.strokeStyle = '#333'; mCtx.lineCap = 'round';
+  if (['happy','excited','celebrate'].includes(expr)) {
+    mCtx.beginPath(); mCtx.arc(120, 144, 16, 0.15, Math.PI-0.15); mCtx.stroke();
+    mCtx.fillStyle='#FF8A9A'; mCtx.beginPath(); mCtx.arc(120, 144, 13, 0.2, Math.PI-0.2); mCtx.fill();
+  } else if (expr === 'love') {
+    mCtx.beginPath(); mCtx.arc(120, 146, 13, 0.2, Math.PI-0.2); mCtx.stroke();
+  } else if (expr === 'thanks') {
+    mCtx.beginPath(); mCtx.moveTo(104,148); mCtx.quadraticCurveTo(120,156,136,148); mCtx.stroke();
+  } else if (expr === 'cool') {
+    mCtx.beginPath(); mCtx.moveTo(106,148); mCtx.lineTo(134,148); mCtx.stroke();
+  } else if (expr === 'cheer') {
+    mCtx.beginPath(); mCtx.arc(120, 140, 18, 0.1, Math.PI-0.1); mCtx.stroke();
+    mCtx.fillStyle='#FF8A9A'; mCtx.beginPath(); mCtx.arc(120,143,14,0.2,Math.PI-0.2); mCtx.fill();
+  } else {
+    mCtx.beginPath(); mCtx.arc(120, 146, 12, 0.15, Math.PI-0.15); mCtx.stroke();
+  }
+}
+
+function drawMainAccessory(acc) {
+  if (acc === 'glasses') {
+    mCtx.strokeStyle='#555'; mCtx.lineWidth=2.5;
+    mCtx.beginPath(); mCtx.roundRect(88,120,24,18,6); mCtx.stroke();
+    mCtx.beginPath(); mCtx.roundRect(128,120,24,18,6); mCtx.stroke();
+    mCtx.beginPath(); mCtx.moveTo(112,129); mCtx.lineTo(128,129); mCtx.stroke();
+  } else if (acc === 'ribbon') {
+    mCtx.fillStyle='#FF6B9D';
+    mCtx.beginPath(); mCtx.ellipse(120,82,18,10,-0.3,0,Math.PI*2); mCtx.fill();
+    mCtx.beginPath(); mCtx.ellipse(120,82,18,10,0.3,0,Math.PI*2); mCtx.fill();
+    mCtx.beginPath(); mCtx.arc(120,82,6,0,Math.PI*2); mCtx.fillStyle='#FF3B7A'; mCtx.fill();
+  } else if (acc === 'earring') {
+    mCtx.fillStyle='#FFD700';
+    mCtx.beginPath(); mCtx.arc(66,138,6,0,Math.PI*2); mCtx.fill();
+    mCtx.beginPath(); mCtx.arc(174,138,6,0,Math.PI*2); mCtx.fill();
+    mCtx.strokeStyle='#FFD700'; mCtx.lineWidth=2.5;
+    mCtx.beginPath(); mCtx.arc(66,146,5,0,Math.PI); mCtx.stroke();
+    mCtx.beginPath(); mCtx.arc(174,146,5,0,Math.PI); mCtx.stroke();
+  } else if (acc === 'flower') {
+    mCtx.fillStyle='#FFB7C5';
+    for (let i=0;i<5;i++) {
+      mCtx.beginPath();
+      mCtx.ellipse(148+Math.cos(i*Math.PI*2/5)*11,92+Math.sin(i*Math.PI*2/5)*11,6,5,i*Math.PI*2/5,0,Math.PI*2);
+      mCtx.fill();
+    }
+    mCtx.beginPath(); mCtx.arc(148,92,6,0,Math.PI*2); mCtx.fillStyle='#FFD700'; mCtx.fill();
+  }
+}
+
+function drawMainOutfitDetails(outfit, bodyColor) {
+  if (outfit === 'formal') {
+    mCtx.fillStyle='white';
+    mCtx.beginPath(); mCtx.ellipse(120,182,10,18,0,0,Math.PI*2); mCtx.fill();
+    mCtx.fillStyle='#FF4B6E'; mCtx.fillRect(116,172,8,18);
+    mCtx.beginPath(); mCtx.arc(120,170,5,0,Math.PI*2); mCtx.fillStyle='#CC0044'; mCtx.fill();
+  } else if (outfit === 'dress') {
+    mCtx.strokeStyle='rgba(255,255,255,0.5)'; mCtx.lineWidth=2.5;
+    mCtx.beginPath(); mCtx.moveTo(92,174); mCtx.lineTo(105,200); mCtx.stroke();
+    mCtx.beginPath(); mCtx.moveTo(120,172); mCtx.lineTo(120,202); mCtx.stroke();
+    mCtx.beginPath(); mCtx.moveTo(148,174); mCtx.lineTo(135,200); mCtx.stroke();
+  }
+}
+
+// ===== Motion =====
+function startAvatarAnimation() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  const m = avatarState.motion || 'bounce';
+  if (m === 'none') { drawMainAvatar(); return; }
+  function tick() {
+    motionTime += 0.05;
+    let yOff=0, rot=0, sc=1;
+    if (m==='bounce') yOff = Math.sin(motionTime*2.5)*12;
+    else if (m==='wave') { yOff=Math.sin(motionTime*2)*5; rot=Math.sin(motionTime*3)*0.08; }
+    else if (m==='spin') rot = motionTime*0.05;
+    else if (m==='heartbeat') { sc = 1+Math.abs(Math.sin(motionTime*3))*0.12; }
+    else if (m==='tada') {
+      yOff=Math.sin(motionTime*4)*8; rot=Math.sin(motionTime*5)*0.1; sc=1+Math.abs(Math.sin(motionTime*4))*0.08;
+    }
+    drawMainAvatar(yOff, sc, rot);
+    animFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+// ===== Reaction =====
+function selectReactionEmoji(emoji, el) {
+  selectedReactionEmoji = emoji;
+  document.querySelectorAll('.reaction-emoji-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function sendReaction() {
+  if (!selectedReactionEmoji) {
+    showToast('⚠️ リアクション絵文字を選んでください');
+    return;
+  }
+
+  const btn = document.getElementById('reactSendBtn');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  const msg = document.getElementById('reactionMsg').value.trim();
+
+  try {
+    await fetch('tables/reactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: orderData.id,
+        reaction_emoji: selectedReactionEmoji,
+        message: msg,
+        recipient_name: orderData.recipient_name || 'ゲスト'
+      })
+    });
+
+    // Update order status
+    try {
+      await fetch(`tables/orders/${orderData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'reacted' })
+      });
+    } catch (e) {}
+
+  } catch (e) {}
+
+  // Show success regardless
+  document.getElementById('reactionForm').style.display = 'none';
+  const sentMsg = document.getElementById('reactionSentMsg');
+  document.getElementById('sentReactionIcon').textContent = selectedReactionEmoji;
+  sentMsg.classList.add('show');
+
+  launchConfetti(30);
+  showToast('💌 リアクションを送りました！');
+}
+
+// ===== Confetti =====
+function launchConfetti(count = 50) {
+  const colors = ['#FF6B9D','#A855F7','#FFD700','#FF8C42','#4CAF50','#64B5F6','#FF3B7A'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.style.cssText = `
+        position: fixed;
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        width: ${5 + Math.random() * 8}px;
+        height: ${5 + Math.random() * 8}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        z-index: 9999;
+        pointer-events: none;
+        animation: confettiFall ${2 + Math.random() * 2}s ${Math.random() * 0.5}s linear forwards;
+      `;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 4000);
+    }, i * 40);
+  }
+}
+
+function showError() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').classList.add('show');
+  document.getElementById('errorState').style.display = 'flex';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===== Init =====
+loadOrder();
+</script>
+</body>
+</html>
